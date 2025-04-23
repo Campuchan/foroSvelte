@@ -55,7 +55,7 @@ if (!globalThis.socketServer) {
         });
     });
 
-    httpServer.listen(3001, () => {
+    httpServer.listen(34321, () => {
         console.log('Chat WebSocket server en puerto 3001 :D');
     });
 

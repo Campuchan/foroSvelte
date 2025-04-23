@@ -4,7 +4,6 @@
   import { user } from '$lib/auth';
   import { get } from 'svelte/store';
   import { goto } from '$app/navigation';
-  import { DOMAIN } from '$env/static/private';
 
   export let data: { user2: { id: string; name: string; email: string; username: string } };
 
@@ -26,7 +25,7 @@
       return;
     }
     roomId = generateRoomId(currentUser.id, user2Id);
-    socket = io( DOMAIN , { transports: ['websocket'] });
+    socket = io( "localhost:3001" , { transports: ['websocket'] });
     socket.on("connect", () => {
         console.log(`Socket conectado (id ${socket.id}). Uniendo a la sala ${roomId}`);
         const data = {
