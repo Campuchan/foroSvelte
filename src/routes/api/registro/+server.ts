@@ -1,35 +1,47 @@
-import type { RequestHandler } from '@sveltejs/kit';
+import { json, error } from '@sveltejs/kit';
+import { client } from '$db/mongo';
+import { createSession } from '$lib/session.js';
+
 import bcrypt from 'bcryptjs';
-import client from '$db/mongo';
 
-// // POST /api/registro
-// // Body: { username, name, email, password }
-// // Response: { message, userId }
-// // Error: { error }
-
-export const POST: RequestHandler = async ({ request }) => {
-    try {
-        const { username, name, email, password } = await request.json();
-
-        if (!username || !name || !email || !password) {
-            return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
-        }
-
-        const usersCollection = client.collection('users');
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        
-        const existingUser = await usersCollection.findOne({ $or: [{ username }, { email }] });
-        if (existingUser) {
-            return new Response(JSON.stringify({ error: 'Nombre de usuario o email en uso' }), { status: 409 });
-        }
-
-        const result = await usersCollection.insertOne({ username, name, email, hashedPassword });
-
-        return new Response(JSON.stringify({ message: 'Usuario registrado', userId: result.insertedId }), { status: 201 });
-    } catch (error) {
-        console.error('Error registering user:', error);
-        return new Response(JSON.stringify({ error: '500 - Error de servidor' }), { status: 500 });
+export async function POST({ request, cookies }) {
+    const { email, password, name, username } = await request.json();
+    const db = client.db();
+    
+    // check email
+    if (await db.collection('users').findOne({ email })) {
+        throw error(409, 'Email ya en uso');
     }
-};
+    
+    // check nombre
+    if (await db.collection('users').findOne({ username })) {
+        throw error(409, 'Nombre de usuario ya en uso');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await db.collection('users').insertOne({
+        email,
+        name,
+        username,
+        password: hashedPassword
+    });
+
+    const sessionToken = await createSession(result.insertedId);
+    
+    cookies.set('session_token', sessionToken, {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 7
+    });
+
+    return json({
+        user: {
+            id: result.insertedId.toString(),
+            email,
+            name,
+            username
+        }
+    });
+}

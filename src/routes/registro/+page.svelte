@@ -1,38 +1,48 @@
 <script lang="ts">
-    let username = '';
-    let name = '';
-    let email = '';
-    let password = '';
-    let message = '';
-    let error = '';
+    import { goto } from "$app/navigation";
+    import { user } from "$lib/auth";
+    import { onMount } from "svelte";
 
-    const handleSubmit = async (event : Event) => { //Event es para que VsCode no marque error
-        event.preventDefault();
-        message = '';
-        error = '';
+    let username = "";
+    let name = "";
+    let email = "";
+    let password = "";
+    let message = "";
+    let error = "";
 
+    onMount(() => {
+        if ($user) {
+            goto("/");
+        }
+    });
+    async function handleSubmit() {
         try {
-            const response = await fetch('/api/registro', {
-                method: 'POST',
+            const response = await fetch("/api/registro", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ username, name, email, password })
+                body: JSON.stringify({ username, name, email, password }),
             });
 
-            const data = await response.json();
-
             if (response.ok) {
-                message = data.message;
+                const data = await response.json();
+                message = `Registro exitoso. Bienvenido, ${data.user.name}!`;
+                error = "";
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 2000);
             } else {
-                error = data.error || 'An error occurred';
+                const errorData = await response.json();
+                error = errorData.message || "Error al registrar usuario.";
+                message = "";
             }
         } catch (err) {
-            error = 'Failed to connect to the server';
+            error = "Error de conexión con el servidor.";
+            message = "";
         }
-    };
+    }
 </script>
-
 <form on:submit|preventDefault={handleSubmit}>
     <div>
         <label for="username">Nombre de usuario:</label>

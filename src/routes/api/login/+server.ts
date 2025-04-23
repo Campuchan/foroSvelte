@@ -1,43 +1,40 @@
-import type { RequestHandler } from '@sveltejs/kit';
+import { json, error } from '@sveltejs/kit';
+import { client } from '$db/mongo';
+import { createSession } from '$lib/session.js';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import client from '$db/mongo';
 
-import { JWT_KEY } from '$env/static/private'; // .env
-
-const JWT_SECRET = JWT_KEY; // Replace with a secure, environment-stored secret
-const JWT_EXPIRATION = '1h'; // Token expiration time
-
-export const POST: RequestHandler = async ({ request }) => {
-    try {
-        const { username, password } = await request.json();
-
-        if (!username || !password) {
-            return new Response(JSON.stringify({ error: 'Missing username or password' }), { status: 400 });
-        }
-
-        const usersCollection = client.collection('users');
-
-        const user = await usersCollection.findOne({ username });
-        if (!user) {
-            return new Response(JSON.stringify({ error: 'Invalid username or password' }), { status: 401 });
-        }
-
-        const passwordMatch = await bcrypt.compare(password, user.hashedPassword);
-        if (!passwordMatch) {
-            return new Response(JSON.stringify({ error: 'Invalid username or password' }), { status: 401 });
-        }
-
-        // Crea el token de acceso con el Id y el nombre de usuario, dura 1 hora
-        const token = jwt.sign( 
-            { userId: user._id, username: user.username },
-            JWT_SECRET,
-            { expiresIn: JWT_EXPIRATION }
-        );
-
-        return new Response(JSON.stringify({ message: 'Login successful', token }), { status: 200 });
-    } catch (error) {
-        console.error('Error logging in:', error);
-        return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
+export async function POST({ request, cookies }) {
+    const { email, password } = await request.json();
+    const db = client.db();
+    
+    if (!email || !password) {
+        throw error(400, 'Faltan datos requeridos');
     }
-};
+
+    const user = await db.collection('users').findOne({ email });
+    if (!user) {
+        throw error(401, 'Correo no existe o contraseña incorrecta');
+    }
+
+    if (!user.password || !(await bcrypt.compare(password, user.password))) {
+        throw error(401, 'Correo no existe o contraseña incorrecta');
+    }
+
+    const sessionToken = await createSession(user._id);
+    
+    cookies.set('session_token', sessionToken, {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 7
+    });
+
+    return json({
+        user: {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name
+        }
+    });
+}

@@ -1,48 +1,58 @@
 <script lang="ts">
-    let username = '';
-    let password = '';
-    let message = '';
-    let error = '';
+    import { user } from "$lib/auth";
+    import { goto } from "$app/navigation";
+    import { onMount } from "svelte";    
+    
+    let username = "";
+    let password = "";
+    let message = "";
+    let error = "";
 
-    const handleSubmit = async (event: Event) => {
-        event.preventDefault();
-        message = '';
-        error = '';
+    onMount(() => {
+        if ($user) {
+            goto("/");
+        }
+    });
 
+    async function handleSubmit() {
         try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
+            const response = await fetch("/api/login", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ email: username, password }),
             });
 
-            const data = await response.json();
-
             if (response.ok) {
-                message = 'Login successful!';
-                // Store the token in localStorage or a cookie for future requests
-                localStorage.setItem('token', data.token);
+                const data = await response.json();
+                message = `Inicio de sesión exitoso. Bienvenido, ${data.user.name}!`;
+                error = "";
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 2000);
             } else {
-                error = data.error || 'An error occurred';
+                const errorData = await response.json();
+                error = errorData.message || "Error al iniciar sesión.";
+                message = "";
             }
         } catch (err) {
-            error = 'Failed to connect to the server';
+            error = "Error de conexión con el servidor.";
+            message = "";
         }
-    };
+    }
 </script>
 
 <form on:submit|preventDefault={handleSubmit}>
     <div>
-        <label for="username">Username:</label>
-        <input id="username" type="text" bind:value={username} required />
+        <label for="username">Correo electrónico:</label>
+        <input id="username" type="email" bind:value={username} required />
     </div>
     <div>
         <label for="password">Contraseña:</label>
         <input id="password" type="password" bind:value={password} required />
     </div>
-    <button type="submit">Login</button>
+    <button type="submit">Iniciar Sesión</button>
 </form>
 
 {#if message}
