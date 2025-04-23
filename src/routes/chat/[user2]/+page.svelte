@@ -4,6 +4,7 @@
   import { user } from '$lib/auth';
   import { get } from 'svelte/store';
   import { goto } from '$app/navigation';
+  import { DOMAIN } from '$env/static/private';
 
   export let data: { user2: { id: string; name: string; email: string; username: string } };
 

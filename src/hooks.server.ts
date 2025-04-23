@@ -28,8 +28,8 @@ if (!globalThis.socketServer) {
 
         //salas
         socket.on('join:room', (data) => {
-            console.log('Raw data received:', JSON.stringify(data)); // Debug the exact payload
-            if (!data || typeof data.roomId !== 'string') { // Ensure roomId is a string
+            console.log('Raw data received:', JSON.stringify(data));
+            if (!data || typeof data.roomId !== 'string') {
                 console.error('Invalid roomId:', data.roomId);
                 return;
             }
