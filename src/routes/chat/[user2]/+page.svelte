@@ -25,7 +25,7 @@
       return;
     }
     roomId = generateRoomId(currentUser.id, user2Id);
-    socket = io( "localhost:3001" , { transports: ['websocket'] });
+    socket = io( "localhost:34321" , { transports: ['websocket'] });
     socket.on("connect", () => {
         console.log(`Socket conectado (id ${socket.id}). Uniendo a la sala ${roomId}`);
         const data = {

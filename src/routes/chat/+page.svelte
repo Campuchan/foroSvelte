@@ -3,7 +3,6 @@
   import { user } from '$lib/auth';
   import { get } from 'svelte/store';
   import { io } from 'socket.io-client';
-  import { DOMAIN } from '$env/static/private';
 
   let socket : any;
   let messages: { from: string; content: string; timestamp: string }[] = [];
@@ -15,7 +14,7 @@
     if (!currentUser) {
       return;
     }
-    socket = io( DOMAIN , { transports: ['websocket'] });
+    socket = io( "localhost:34321" , { transports: ['websocket'] });
 
     socket.on("chat:message", (msg : { from: string; content: string; timestamp: string }) => {
       messages = [...messages, msg];
