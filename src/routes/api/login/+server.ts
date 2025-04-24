@@ -4,20 +4,20 @@ import { createSession } from '$lib/session.js';
 import bcrypt from 'bcryptjs';
 
 export async function POST({ request, cookies }) {
-    const { email, password } = await request.json();
+    const { username , password } = await request.json();
     const db = client.db();
     
-    if (!email || !password) {
+    if (!username || !password) {
         throw error(400, 'Faltan datos requeridos');
     }
 
-    const user = await db.collection('users').findOne({ email });
+    const user = await db.collection('users').findOne({ username });
     if (!user) {
-        throw error(401, 'Correo no existe o contraseña incorrecta');
+        throw error(401, 'Usuario no existe o contraseña incorrecta');
     }
 
     if (!user.password || !(await bcrypt.compare(password, user.password))) {
-        throw error(401, 'Correo no existe o contraseña incorrecta');
+        throw error(401, 'Usuario no existe o contraseña incorrecta');
     }
 
     const sessionToken = await createSession(user._id);
@@ -34,6 +34,7 @@ export async function POST({ request, cookies }) {
         user: {
             id: user._id.toString(),
             email: user.email,
+            username: user.username,
             name: user.name
         }
     });

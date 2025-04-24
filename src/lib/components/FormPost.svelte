@@ -1,7 +1,8 @@
 <script lang="ts">
   // Accept a prop to control visibility and a callback to close the popup.
   export let visible: boolean;
-  export function close(){};
+  //export function close(){}; esto no va
+  export let close: () => {};
   
   let title = "";
   let content = "";
@@ -42,7 +43,7 @@
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div class="modal-overlay" on:click|self={close}>
     <div class="modal">
-      <button class="close-button" on:click={close}>&times;</button>
+      <button class="close-button" on:click={close}>Ⅹ</button>
       <h2>Nuevo Post</h2>
       <form on:submit|preventDefault={handleSubmit}>
         <div>

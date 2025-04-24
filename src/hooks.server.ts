@@ -5,6 +5,7 @@ import { ObjectId } from 'mongodb';
 import { randomBytes } from 'crypto';
 import { Server as SocketIOServer } from 'socket.io';
 import { createServer } from 'http';
+import { time } from 'console';
 
 start_mongo().then(() => {
     console.log("MongoDB conectado");
@@ -43,7 +44,7 @@ if (!globalThis.socketServer) {
         });
 
         socket.on('privateMessage', ({ roomId, message }) => {
-            io.to(roomId).emit('privateMessage', { roomId, message });
+            io.to(roomId).emit('privateMessage', message );
         });
 
         socket.on('chat:message', (message) => {
@@ -82,7 +83,8 @@ export const handle: Handle = async ({ event, resolve }) => {
                     event.locals.user = {
                         id: user._id.toString(),
                         email: user.email,
-                        name: user.name
+                        name: user.name,
+                        username: user.username
                     };
                 }
             }

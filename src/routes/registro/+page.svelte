@@ -43,25 +43,76 @@
         }
     }
 </script>
-<form on:submit|preventDefault={handleSubmit}>
-    <div>
-        <label for="username">Nombre de usuario:</label>
-        <input id="username" type="text" bind:value={username} required />
-    </div>
-    <div>
-        <label for="name">Nombre:</label>
-        <input id="name" type="text" bind:value={name} required />
-    </div>
-    <div>
-        <label for="email">Correo electrónico:</label>
-        <input id="email" type="email" bind:value={email} required />
-    </div>
-    <div>
-        <label for="password">Contraseña:</label>
-        <input id="password" type="password" bind:value={password} required />
-    </div>
-    <button type="submit">Registrar</button>
-</form>
+
+<style>
+    div {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    h1 {
+        margin-top: 0;        
+    }
+
+    form div {
+        display: flex;
+        flex-direction: column;
+    }
+    form div label {
+        align-self: flex-start;
+    }
+    
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+        margin: 5px 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4x;
+    }
+    button[type="submit"] {
+        margin-top: 10px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+</style>
+
+<div>
+    <form on:submit|preventDefault={handleSubmit}>
+        <h1>Registro</h1>
+        <div>
+            <label for="username">Nombre de usuario:</label>
+            <input id="username" type="text" bind:value={username} required />
+        </div>
+        <div>
+            <label for="name">Nombre:</label>
+            <input id="name" type="text" bind:value={name} required />
+        </div>
+        <div>
+            <label for="email">Correo electrónico:</label>
+            <input id="email" type="email" bind:value={email} required />
+        </div>
+        <div>
+            <label for="password">Contraseña:</label>
+            <input id="password" type="password" bind:value={password} required />
+        </div>
+        <button type="submit">Registrar</button>
+    </form>
+</div>
 
 {#if message}
     <p style="color: green;">{message}</p>

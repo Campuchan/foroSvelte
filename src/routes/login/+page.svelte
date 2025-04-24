@@ -21,12 +21,12 @@
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email: username, password }),
+                body: JSON.stringify({ username, password }),
             });
 
             if (response.ok) {
                 const data = await response.json();
-                message = `Inicio de sesión exitoso. Bienvenido, ${data.user.name}!`;
+                message = `Inicio de sesión exitoso. Bienvenido/a, ${data.user.name}!`;
                 error = "";
                 setTimeout(() => {
                     window.location.href = "/";
@@ -45,8 +45,8 @@
 
 <form on:submit|preventDefault={handleSubmit}>
     <div>
-        <label for="username">Correo electrónico:</label>
-        <input id="username" type="email" bind:value={username} required />
+        <label for="username">Nombre de usuario:</label>
+        <input id="username" type="text" bind:value={username} required />
     </div>
     <div>
         <label for="password">Contraseña:</label>

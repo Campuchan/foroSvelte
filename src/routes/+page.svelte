@@ -31,10 +31,20 @@
   }
 </script>
 
-<h1>Bienvenido al foro</h1>
+<style>
+  .botonNuevoPost {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+</style>
+
 {#if $user}
   <p>Bienvenido, {$user.name}!</p>
-  <button on:click={openPopup}>Nuevo Post</button>
+  <button class="botonNuevoPost" on:click={openPopup}>Nuevo Post</button>
   <CrearPost visible={showPopup} close={() => showPopup = false} />
 {:else}
   <p>No estás autenticado.</p>

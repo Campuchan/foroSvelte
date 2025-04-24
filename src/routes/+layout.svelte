@@ -1,19 +1,28 @@
 <script lang="ts">
-    import { page } from '$app/state';
+    import { page } from '$app/stores';
     import { user } from '$lib/auth';
 
-    $: user.set(page.data?.user || null);
+    $: user.set($page.data.user || null);
 </script>
 
 <style>
     * {
         font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .layout {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+
+        width: 100%;
     }
 
     header {
-        position: fixed;
-        top: 0;
-        left: 0;
+        position: relative;
         height: 120px;
         width: 100%;
         z-index: 1000;
@@ -21,13 +30,22 @@
         color: white;
         padding: 10px 20px;
         text-align: center;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     header h1 a {
         color: white;
-        margin: 0;
+        margin: 0 auto;
         text-decoration: none;
         font-size: 48px;
+        display: inline-block;
+    }
+
+    nav {
+        margin-top: 10px;
     }
 
     nav a {
@@ -37,9 +55,12 @@
     }
 
     main {
-        margin-top: 120px; /* segun header y footer */
-        margin-bottom: 40px;
+        flex-grow: 1;
+        width: 100%; 
         padding: 20px;
+        display: flex;
+        justify-content: center; 
+        align-items: center;
     }
 
     footer {
@@ -48,27 +69,27 @@
         padding: 10px 0;
         background-color: #333;
         color: white;
-        position: fixed;
         width: 100%;
-        bottom: 0;
     }
 </style>
 
-<header>
-    <h1><a href="/">Foro</a></h1>
-    <nav>
-        {#if $user}
-            <a href="/logout">Cerrar Sesión</a>
-            <a href="/perfil">Perfil</a>
-        {:else}
-            <a href="/login">Iniciar Sesión</a>
-            <a href="/registro">Registro</a>
-        {/if}
-    </nav>
-</header>
+<div class="layout">
+    <header>
+        <h1><a href="/">Foro</a></h1>
+        <nav>
+            {#if $user}
+                <a href="/logout">Cerrar Sesión</a>
+                <a href="/perfil">{$user.username}</a>
+            {:else}
+                <a href="/login">Iniciar Sesión</a>
+                <a href="/registro">Registro</a>
+            {/if}
+        </nav>
+    </header>
 
-<main>
-    <slot />
-</main>
+    <main>
+        <slot />
+    </main>
 
-<footer>Foro - Pablo Campuzano Cuadrado</footer>
+    <footer>Foro - Pablo Campuzano Cuadrado</footer>
+</div>

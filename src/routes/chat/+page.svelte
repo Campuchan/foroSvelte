@@ -16,19 +16,63 @@
     }
     socket = io( "localhost:34321" , { transports: ['websocket'] });
 
+    socket.on("connect", () => {
+      console.log(`Socket conectado (id ${socket.id}).`);
+      socket.emit('join:room', { roomId: 'general' });
+      fetch("/api/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ roomId: 'general' }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                messages = data.messages || [];
+            })
+            .catch(error => console.error('Error fetching messages:', error));
+    });
+
+    
+    
+    const chatContainer = document.querySelector('.messages');
     socket.on("chat:message", (msg : { from: string; content: string; timestamp: string }) => {
       messages = [...messages, msg];
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
     });
   });
 
-  function sendMessage() {
+  async function sendMessage() {
     if (!newMessage.trim()) return;
     const msg = {
       from: currentUser.username || currentUser.name,
       content: newMessage,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      roomId: 'general'
     };
     socket.emit("chat:message", msg);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mensaje: msg.content,
+          roomId: msg.roomId
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Error storing the message:", await response.text());
+      }
+    } catch (error) {
+      console.error("Error sending the message to the API:", error);
+    }
+
     newMessage = "";
   }
 </script>
