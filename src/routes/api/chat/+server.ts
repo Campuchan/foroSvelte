@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     const data = {
         mensaje,
         roomId,
-        userId: new ObjectId(user.id),
+        userId: (user.id),
         createdAt: new Date()
     };
 

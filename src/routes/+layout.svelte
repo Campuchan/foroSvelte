@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import { user } from '$lib/auth';
 
-    $: user.set($page.data.user || null);
+    $: user.set(page.data.user || null);
 </script>
 
 <style>
@@ -14,6 +14,7 @@
     }
 
     .layout {
+        position: relative;
         display: flex;
         flex-direction: column;
         height: 100vh;
@@ -43,6 +44,11 @@
         font-size: 48px;
         display: inline-block;
     }
+    header h1 ::after {
+        content : 'v0.2';
+        font-size: 16px;
+        color: #ccc;
+    }
 
     nav {
         margin-top: 10px;
@@ -55,6 +61,7 @@
     }
 
     main {
+        position: relative;
         flex-grow: 1;
         width: 100%; 
         padding: 20px;
@@ -75,7 +82,7 @@
 
 <div class="layout">
     <header>
-        <h1><a href="/">Foro</a></h1>
+        <h1><a href="/">ForoSvelte</a></h1>
         <nav>
             {#if $user}
                 <a href="/logout">Cerrar Sesión</a>

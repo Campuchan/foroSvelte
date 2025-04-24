@@ -2,21 +2,23 @@
     import { goto } from "$app/navigation";
     import { user } from "$lib/auth";
     import { onMount } from "svelte";
-
     let username = "";
     let name = "";
     let email = "";
     let password = "";
     let message = "";
     let error = "";
+    let loading = false;
 
     onMount(() => {
         if ($user) {
             goto("/");
         }
     });
+
     async function handleSubmit() {
         try {
+            loading = true;
             const response = await fetch("/api/registro", {
                 method: "POST",
                 headers: {
@@ -27,6 +29,7 @@
 
             if (response.ok) {
                 const data = await response.json();
+
                 message = `Registro exitoso. Bienvenido, ${data.user.name}!`;
                 error = "";
                 setTimeout(() => {
@@ -37,9 +40,11 @@
                 error = errorData.message || "Error al registrar usuario.";
                 message = "";
             }
+            loading = false;
         } catch (err) {
             error = "Error de conexión con el servidor.";
             message = "";
+            loading = false;
         }
     }
 </script>
@@ -117,7 +122,9 @@
 {#if message}
     <p style="color: green;">{message}</p>
 {/if}
-
+{#if loading}
+    <p style="color: blue;">Procesando...</p>
+{/if}
 {#if error}
     <p style="color: red;">{error}</p>
 {/if}
