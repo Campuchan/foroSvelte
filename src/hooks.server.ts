@@ -29,7 +29,6 @@ if (!globalThis.socketServer) {
 
         //salas
         socket.on('join:room', (data) => {
-            console.log('Raw data received:', JSON.stringify(data));
             if (!data || typeof data.roomId !== 'string') {
                 console.error('Invalid roomId:', data.roomId);
                 return;
@@ -38,7 +37,6 @@ if (!globalThis.socketServer) {
             socket.join(roomId);
             socket.emit('joined:room', roomId);
             socket.to(roomId).emit('user:joined', socket.id);
-            console.log(`Usuario ${socket.id} se unió a la sala ${roomId}`);
         });
 
         socket.on('leaveRoom', (room) => {

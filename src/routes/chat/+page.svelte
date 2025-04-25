@@ -40,7 +40,6 @@
                     content: msg.content,
                     timestamp: msg.timestamp,
                   }));
-                  console.log(messages);
                   const chatContainer = document.querySelector('.messages');
                   if (chatContainer) {
                     //https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
@@ -96,7 +95,6 @@
       if (!response.ok) {
         console.error("Error storing the message:", await response.text());
       }
-      console.log(response)
     } catch (error) {
       console.error("Error sending the message to the API:", error);
     }

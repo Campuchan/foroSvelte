@@ -20,6 +20,5 @@ export const load: PageServerLoad = async ( {params} ) => {
             username: user.username
         }
     };
-    console.log('Response:', JSON.stringify(response));
     return response;
 };

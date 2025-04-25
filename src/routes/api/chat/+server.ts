@@ -4,9 +4,7 @@ import type { RequestHandler } from '@sveltejs/kit';
 export const POST: RequestHandler = async ({ request, locals }) => {
     const { from, content, roomId } = await request.json();
     const { user } = locals;
-    
-    console.log( "Mensaje recibido: ", from, " " , content, " ", roomId );
-    
+        
     if (!user) {
         return new Response(JSON.stringify({ info: 'No hay usuario' }), { status: 469 });
     }
@@ -18,7 +16,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         userId: (user.id),
         timestamp: new Date()
     };
-    console.log('Guardando mensaje:', data);
 
     const result = await client.db().collection('chat').insertOne(data);
     
@@ -73,7 +70,6 @@ export const GET: RequestHandler = async ({ url }) => {
     if (!mensajes) {
         return new Response(JSON.stringify({ info: 'No hay mensajes en el historial' }), { status: 469 });
     }
-    console.log('Mensajes devueltos:', data);
     return new Response(JSON.stringify(data), { status: 200 });
 
 }

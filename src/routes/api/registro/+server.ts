@@ -1,10 +1,9 @@
-import { json, error } from '@sveltejs/kit';
+import { json, error, type RequestHandler } from '@sveltejs/kit';
 import { client } from '$db/mongo';
 import { createSession } from '$lib/session.js';
 
 import bcrypt from 'bcryptjs';
-
-export async function POST({ request, cookies }) {
+export const POST: RequestHandler = async ({ request, cookies }) => {
     const { email, password, name, username } = await request.json();
     const db = client.db();
     
