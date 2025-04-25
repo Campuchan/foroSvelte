@@ -8,8 +8,11 @@
   let messages: { from: string; content: string; timestamp: string }[] = [];
   let newMessage = "";
   let currentUser : any;
+  let cargando = true;
 
+  
   onMount(() => {
+    document.querySelector('#btnEnviar')?.setAttribute('disabled', 'true');
     currentUser = get(user);
     if (!currentUser) {
       return;
@@ -18,21 +21,34 @@
 
     socket.on("connect", () => {
       console.log(`Socket conectado (id ${socket.id}).`);
-      socket.emit('join:room', { roomId: 'general' });
-      fetch("/api/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ roomId: 'general' }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                messages = data.messages || [];
-            })
-            .catch(error => console.error('Error fetching messages:', error));
+        fetch("/api/chat?roomId=general&skip=0", {
+                  method: "GET",
+                  headers: {
+                      "Content-Type": "application/json",
+                  }
+              })
+              .then(response => response.json())
+                .then(data => {
+                if (data.mensajes.length > 0) {
+                  messages = data.mensajes.map((msg: { from: string; content: string; timestamp: string }) => ({
+                  ...msg,
+                  timestamp: new Date(msg.timestamp).toISOString()
+                  }));
+                  console.log(messages);
+                } else {
+                  messages = [];
+                }
+                })
+              .then(() => {
+                cargando = false;
+                document.querySelector('#btnEnviar')?.removeAttribute('disabled');
+              })
+              .catch(error => console.error('Error fetching messages:', error));
     });
 
+    socket.on("user:joined", (msg : { from: string }) => {
+      console.log(msg.from + " se conectó ");
+    });
     
     
     const chatContainer = document.querySelector('.messages');
@@ -45,7 +61,7 @@
   });
 
   async function sendMessage() {
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim()) return; // no envia mensajes vacios o solo espacios
     const msg = {
       from: currentUser.username || currentUser.name,
       content: newMessage,
@@ -61,19 +77,28 @@
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          mensaje: msg.content,
+          from: msg.from,
+          content: msg.content,
           roomId: msg.roomId
         }),
       });
-
       if (!response.ok) {
         console.error("Error storing the message:", await response.text());
       }
+      console.log(response)
     } catch (error) {
       console.error("Error sending the message to the API:", error);
     }
 
     newMessage = "";
+  }
+
+
+  function mensajeEnter(event: KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement; }) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      sendMessage();
+    }
   }
 </script>
 
@@ -111,7 +136,7 @@
 {#if $user}
   <div class="chat-container">
     <div class="messages">
-      {#each messages as msg (msg.timestamp)}
+      {#each messages as msg, index (index)} <!-- index es la clave de cada mensaje -->
         <div class="message">
           <strong>{msg.from}:</strong> {msg.content}
           <span style="font-size:0.8em; color: gray;">({new Date(msg.timestamp).toLocaleTimeString()})</span>
@@ -123,9 +148,9 @@
         type="text"
         placeholder="Escribe tu mensaje..."
         bind:value={newMessage}
-        on:keydown={(e) => e.key === 'Enter' && sendMessage()}
+        on:keydown={mensajeEnter}
       />
-      <button on:click={sendMessage}>Enviar</button>
+      <button id="btnEnviar" on:click={sendMessage}>Enviar</button>
     </div>
   </div>
 {:else}

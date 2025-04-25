@@ -51,6 +51,8 @@ export const GET: RequestHandler = async ({ request }) => {
         .skip(numberOfPostsSkip).limit(numberOfPosts+1).toArray();
     const hayMas = posts.length > numberOfPosts; // si hay mas posts de los que se pidieron es que hay mas
 
+    console.log("posts", posts)
+
     if (hayMas) { // si hay más posts, eliminamos el último
                   // el ultimo solo esta para comprobar si hay mas
         posts.pop();

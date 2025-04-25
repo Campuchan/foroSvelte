@@ -24,13 +24,16 @@
             postAuthors.set(post.userId, userData.username);
             postAuthors = new Map(postAuthors);
           })
+          .then(() => {
+            console.log("posts", posts)
+          })
           .catch(error => console.error('Error fetching user:', error))
         )
         hayMas = data.hayMas;
         limit += 10; 
       })
       .catch(error => console.error('Error fetching posts:', error));
-  
+      
     }
 
   function openPopup() {
@@ -49,6 +52,10 @@
     flex-direction: column;
     align-items: center;
     gap: 16px;
+  }
+  .posts p {
+    font-size: 24px;
+    color: #333;
   }
   .post {
     position: relative;

@@ -36,6 +36,8 @@ if (!globalThis.socketServer) {
             }
             const roomId = data.roomId;
             socket.join(roomId);
+            socket.emit('joined:room', roomId);
+            socket.to(roomId).emit('user:joined', socket.id);
             console.log(`Usuario ${socket.id} se unió a la sala ${roomId}`);
         });
 

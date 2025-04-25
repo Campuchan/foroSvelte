@@ -1,24 +1,27 @@
-import { ObjectId } from 'mongodb';
 import { client } from '$db/mongo';
 import type { RequestHandler } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
-    const { mensaje, roomId } = await request.json();
+    const { from, content, roomId } = await request.json();
     const { user } = locals;
+    
+    console.log( "Mensaje recibido: ", from, " " , content, " ", roomId );
     
     if (!user) {
         return new Response(JSON.stringify({ info: 'No hay usuario' }), { status: 469 });
     }
-
+    
     const data = {
-        mensaje,
-        roomId,
+        from : from,
+        content : content,
+        roomId : roomId,
         userId: (user.id),
         createdAt: new Date()
     };
+    console.log('Guardando mensaje:', data);
 
-    const result = await client.db().collection('posts').insertOne(data);
-
+    const result = await client.db().collection('chat').insertOne(data);
+    
     if (!result) {
         return new Response(JSON.stringify({ info: 'Error al guardar el mensaje' }), { status: 500 });
     }
@@ -26,21 +29,50 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     return new Response(JSON.stringify({ info: 'Mensaje guardado' }), { status: 200 });
 };
 
-export const GET: RequestHandler = async ({ request }) => {
-    const requestData = await request.json();
-    const { roomId } = requestData;
-    const mensajes = client.db()
-        .collection('posts').find()
-        .filter(roomId)
+export const GET: RequestHandler = async ({ url }) => {
+    const roomId = url.searchParams.get('roomId');
+    const skip = parseInt(url.searchParams.get('skip') || "0");
+    
+    console.log('Recibiendo mensajes de la sala:', roomId, 'con skip:', skip);
+
+    if (!roomId) {
+        return new Response(JSON.stringify({ info: 'falta id de sala' }), { status: 469 });
+    }
+
+    const mensajesPorPagina = 10;
+    let hayMas = false;
+    
+    const mensajes = await client.db()
+        .collection('chat').find()
+        .skip(skip)
+        .limit(mensajesPorPagina + 1)
+        .filter({roomId})
         .sort({ createdAt: -1 })
+        .toArray()
+        .then((mensajes) => {
+            //console.log('Mensajes:', mensajes);
+            return mensajes.map((mensaje) => {
+                return {
+                    ...mensaje,
+                    createdAt: mensaje.createdAt.toISOString()
+                };
+            });
+
+        })
+    if (mensajes.length > mensajesPorPagina) {
+        mensajes.pop(); //esto es lo mismo que en posts
+        hayMas = true;
+    }
 
     const data = {
+        hayMas,
         mensajes
     };
     
     if (!mensajes) {
         return new Response(JSON.stringify({ info: 'No hay mensajes en el historial' }), { status: 469 });
     }
+    console.log('Mensajes devueltos:', data);
     return new Response(JSON.stringify(data), { status: 200 });
 
 }
