@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         return new Response(JSON.stringify({ error: 'Faltan datos' }), { status: 400 });
     }
     const post = {
-        userId,
+        userId: new ObjectId(userId),
         title: data.title,
         content: data.content,
         createdAt: new Date()
@@ -50,8 +50,6 @@ export const GET: RequestHandler = async ({ request }) => {
         .sort({ createdAt: -1 })
         .skip(numberOfPostsSkip).limit(numberOfPosts+1).toArray();
     const hayMas = posts.length > numberOfPosts; // si hay mas posts de los que se pidieron es que hay mas
-
-    console.log("posts", posts)
 
     if (hayMas) { // si hay más posts, eliminamos el último
                   // el ultimo solo esta para comprobar si hay mas

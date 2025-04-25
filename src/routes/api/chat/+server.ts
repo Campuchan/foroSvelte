@@ -16,7 +16,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         content : content,
         roomId : roomId,
         userId: (user.id),
-        createdAt: new Date()
+        timestamp: new Date()
     };
     console.log('Guardando mensaje:', data);
 
@@ -47,20 +47,21 @@ export const GET: RequestHandler = async ({ url }) => {
         .skip(skip)
         .limit(mensajesPorPagina + 1)
         .filter({roomId})
-        .sort({ createdAt: -1 })
+        .sort({ timestamp: -1 })
         .toArray()
         .then((mensajes) => {
             //console.log('Mensajes:', mensajes);
             return mensajes.map((mensaje) => {
                 return {
                     ...mensaje,
-                    createdAt: mensaje.createdAt.toISOString()
+                    timestamp: mensaje.timestamp.toISOString()
                 };
-            });
+            }).sort((a, b) => {
+                return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()})})
 
-        })
+
     if (mensajes.length > mensajesPorPagina) {
-        mensajes.pop(); //esto es lo mismo que en posts
+        mensajes.shift() //es como posts pero se elimina el primero por que es el mas viejo
         hayMas = true;
     }
 

@@ -1,7 +1,9 @@
 import { error } from '@sveltejs/kit';
 import { client } from '$db/mongo';
 
-export const load = async ({ params }) => {
+import type { PageServerLoad } from './$types';
+
+export const load: PageServerLoad = async ( {params} ) => {
     const { slug } = params;
     const db = client.db();
 
@@ -10,8 +12,7 @@ export const load = async ({ params }) => {
     if (!user) {
         throw error(404, 'Usuario no encontrado');
     }
-
-    return {
+    const response = {
         user: {
             id: user._id.toString(),
             name: user.name,
@@ -19,4 +20,6 @@ export const load = async ({ params }) => {
             username: user.username
         }
     };
+    console.log('Response:', JSON.stringify(response));
+    return response;
 };

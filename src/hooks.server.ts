@@ -95,6 +95,5 @@ export const handle: Handle = async ({ event, resolve }) => {
             event.cookies.delete('session_token', { path: '/' });
         }
     }
-
     return resolve(event);
 };

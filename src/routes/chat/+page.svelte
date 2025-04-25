@@ -10,7 +10,12 @@
   let currentUser : any;
   let cargando = true;
 
-  
+  type Mensaje = {
+    from: string;
+    content: string;
+    timestamp: Date;
+  };
+
   onMount(() => {
     document.querySelector('#btnEnviar')?.setAttribute('disabled', 'true');
     currentUser = get(user);
@@ -30,11 +35,17 @@
               .then(response => response.json())
                 .then(data => {
                 if (data.mensajes.length > 0) {
-                  messages = data.mensajes.map((msg: { from: string; content: string; timestamp: string }) => ({
-                  ...msg,
-                  timestamp: new Date(msg.timestamp).toISOString()
+                  messages = data.mensajes.map((msg: Mensaje) => ({
+                    from: msg.from,
+                    content: msg.content,
+                    timestamp: msg.timestamp,
                   }));
                   console.log(messages);
+                  const chatContainer = document.querySelector('.messages');
+                  if (chatContainer) {
+                    //https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
+                    chatContainer.scrollIntoView({ behavior: 'instant' });
+                  }
                 } else {
                   messages = [];
                 }
@@ -55,7 +66,7 @@
     socket.on("chat:message", (msg : { from: string; content: string; timestamp: string }) => {
       messages = [...messages, msg];
       if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        chatContainer.scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
       }
     });
   });
@@ -103,7 +114,18 @@
 </script>
 
 <style>
+  .chat {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+  }
+
+
   .chat-container {
+    width: 100%;
+    min-width: 300px;
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
@@ -130,29 +152,36 @@
     flex-grow: 1;
     padding: 8px;
   }
+  h1 {
+    position:absolute;
+    top: 0;
+    left: 20px;
+  }
 </style>
 
-<h1>Chat</h1>
-{#if $user}
-  <div class="chat-container">
-    <div class="messages">
-      {#each messages as msg, index (index)} <!-- index es la clave de cada mensaje -->
-        <div class="message">
-          <strong>{msg.from}:</strong> {msg.content}
-          <span style="font-size:0.8em; color: gray;">({new Date(msg.timestamp).toLocaleTimeString()})</span>
-        </div>
-      {/each}
+<div class="chat">
+  <h1>Chat</h1>
+  {#if $user}
+    <div class="chat-container">
+      <div class="messages">
+        {#each messages as msg, index (index)} <!-- index es la clave de cada mensaje -->
+          <div class="message">
+            <strong>{msg.from}:</strong> {msg.content}
+            <span style="font-size:0.8em; color: gray;">({new Date(msg.timestamp).toLocaleTimeString()})</span>
+          </div>
+        {/each}
+      </div>
+      <div class="chat-input">
+        <input
+          type="text"
+          placeholder="Escribe tu mensaje..."
+          bind:value={newMessage}
+          on:keydown={mensajeEnter}
+        />
+        <button id="btnEnviar" on:click={sendMessage}>Enviar</button>
+      </div>
     </div>
-    <div class="chat-input">
-      <input
-        type="text"
-        placeholder="Escribe tu mensaje..."
-        bind:value={newMessage}
-        on:keydown={mensajeEnter}
-      />
-      <button id="btnEnviar" on:click={sendMessage}>Enviar</button>
-    </div>
-  </div>
-{:else}
-  <p>Debes <a href="/login">iniciar sesión</a> para chatear.</p>
-{/if}
+  {:else}
+    <p>Debes <a href="/login">iniciar sesión</a> para chatear.</p>
+  {/if}
+</div>
