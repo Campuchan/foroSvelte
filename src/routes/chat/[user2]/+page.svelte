@@ -24,7 +24,7 @@
     return [userA, userB].sort().join('-');
   }
   
-  onMount(() => {
+  onMount( async () => {
     try {
       const response = await fetch('/api/user');
       users = await response.json();
@@ -128,21 +128,65 @@
 </script>
 
 <style>
+
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .lista-users {
+    z-index: 1000;
+    width: 100%;
+    min-width: 80px;
+    max-width: 160px;
+    margin: 0 auto;
+    margin-left: 120px;
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    overflow-y: auto;
+  }
+  .lista-user-item {
+    padding: 8px;
+    background-color: #f1f1f1;
+    border: 1px solid #bbb;
+    border-collapse: collapse;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .chat {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    margin-left: -120px;
+  }
   .chat-container {
-    max-width: 600px;
+    width: 100%;
+    min-width: 300px;
+    max-width: 800px;
     margin: 0 auto;
     padding: 20px;
   }
   .messages {
-    max-height: 300px;
+    max-height: 400px;
     overflow-y: auto;
+    margin-bottom: 20px;
     border: 1px solid #ddd;
     padding: 10px;
-    margin-bottom: 20px;
   }
   .message {
-    padding: 6px;
+    padding: 8px;
     border-bottom: 1px solid #eee;
+  }
+  .message strong {
+    margin-right: 8px;
   }
   .chat-input {
     display: flex;
@@ -155,43 +199,57 @@
 </style>
 
 <h1>Chat Privado</h1>
-<div class="lista-users">
-  {#if cargando}
-    <p>Cargando usuarios...</p>
-  {:else if users.length === 0}
-    <p>No hay usuarios disponibles.</p>
-  {:else}
-    <div class="header-lista-users">Usuarios:
-      {#each users as user (user.username)}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
+<div class="container">
+  <div class="lista-users">
+    {#if cargando}
+      <p>Cargando usuarios...</p>
+      {:else if users.length === 0}
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <div class="lista-user-item" onclick={() => goto("/chat/", { invalidateAll: true })} style="cursor: pointer;">
+        <span>Chat general</span>
+      </div>
+      <p>No hay usuarios disponibles.</p>
+    {:else}
+      <div class="header-lista-users">Usuarios:
         <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div class="lista-user-item" onclick={() => goto("/chat/" + user.username)} style="cursor: pointer;">
-          <span>{user.name}</span>
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <div class="lista-user-item" onclick={() => goto("/chat/", { invalidateAll: true })} style="cursor: pointer;">
+          <span>Chat general</span>
         </div>
-      {/each}
-    </div>
-  {/if}
-</div>
-{#if currentUser}
-  <div class="chat-container">
-    <div class="messages">
-      {#each privateMessages as msg (msg.timestamp)}
-        <div class="message">
-          <strong>{msg.from}:</strong> {msg.content}
-          <span style="font-size:0.8em; color: gray;">({new Date(msg.timestamp).toLocaleTimeString()})</span>
-        </div>
-      {/each}
-    </div>
-    <div class="chat-input">
-      <input
-        type="text"
-        placeholder="Escribe tu mensaje..."
-        bind:value={newPrivateMessage}
-        onkeydown={(e) => e.key === 'Enter' && sendPrivateMessage()}
-      />
-      <button onclick={sendPrivateMessage}>Enviar</button>
-    </div>
+        {#each users as user (user.username)}
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div class="lista-user-item" onclick={() => goto("/chat/" + user.username, { invalidateAll: true })} style="cursor: pointer;">
+            <span>{user.name}</span>
+          </div>
+        {/each}
+      </div>
+    {/if}
   </div>
-{:else}
-  <p>Debes <a href="/login">iniciar sesión</a> para chatear.</p>
-{/if}
+  <div class="chat">
+    {#if currentUser}
+      <div class="chat-container">
+        <div class="messages">
+          {#each privateMessages as msg (msg.timestamp)}
+            <div class="message">
+              <strong>{msg.from}:</strong> {msg.content}
+              <span style="font-size:0.8em; color: gray;">({new Date(msg.timestamp).toLocaleTimeString()})</span>
+            </div>
+          {/each}
+        </div>
+        <div class="chat-input">
+          <input
+            type="text"
+            placeholder="Escribe tu mensaje..."
+            bind:value={newPrivateMessage}
+            onkeydown={(e) => e.key === 'Enter' && sendPrivateMessage()}
+          />
+          <button onclick={sendPrivateMessage}>Enviar</button>
+        </div>
+      </div>
+    {:else}
+      <p>Debes <a href="/login">iniciar sesión</a> para chatear.</p>
+    {/if}
+  </div>
+</div>

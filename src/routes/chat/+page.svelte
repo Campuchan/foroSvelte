@@ -194,9 +194,6 @@
     flex-grow: 1;
     padding: 8px;
   }
-  h1 {
-    
-  }
 </style>
 <h1>Chat</h1>
 <div class="container">
