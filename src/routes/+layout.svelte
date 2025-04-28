@@ -85,6 +85,7 @@
         <h1><a href="/">ForoSvelte</a></h1>
         <nav>
             {#if $user}
+                <a href="/chat">Chat (nuevo!!)</a>
                 <a href="/logout">Cerrar Sesión</a>
                 <a href="/perfil">{$user.username}</a>
             {:else}

@@ -5,8 +5,8 @@
   import { io } from 'socket.io-client';
 
   let socket : any;
-  let messages: { from: string; content: string; timestamp: string }[] = [];
-  let newMessage = "";
+  let messages: { from: string; content: string; timestamp: string }[] = $state([]);
+  let newMessage = $state("");
   let currentUser : any;
   let cargando = true;
 
@@ -43,7 +43,12 @@
                   const chatContainer = document.querySelector('.messages');
                   if (chatContainer) {
                     //https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
-                    chatContainer.scrollIntoView({ behavior: 'instant' });
+                    
+                    setTimeout(() => {
+                      if (chatContainer) {
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                      }
+                    }, 0); // sin el timeout no espera a que messages actualice
                   }
                 } else {
                   messages = [];
@@ -64,9 +69,11 @@
     const chatContainer = document.querySelector('.messages');
     socket.on("chat:message", (msg : { from: string; content: string; timestamp: string }) => {
       messages = [...messages, msg];
-      if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
-      }
+      setTimeout(() => {
+        if (chatContainer) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+      }, 0); // sin el timeout no espera a que messages actualice
     });
   });
 
@@ -75,7 +82,7 @@
     const msg = {
       from: currentUser.username || currentUser.name,
       content: newMessage,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(),
       roomId: 'general'
     };
     socket.emit("chat:message", msg);

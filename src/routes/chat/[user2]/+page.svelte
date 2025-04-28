@@ -36,7 +36,6 @@
     });
     socket.on('privateMessage', (msg: { from: string; content: string; timestamp: string }) => {
       console.log("Mensaje privado recibido:", msg);
-      console.log("mensaje mecago: ", msg.content)
       privateMessages = [...privateMessages, msg];
     });
   });

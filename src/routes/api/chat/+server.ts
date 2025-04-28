@@ -36,7 +36,7 @@ export const GET: RequestHandler = async ({ url }) => {
         return new Response(JSON.stringify({ info: 'falta id de sala' }), { status: 469 });
     }
 
-    const mensajesPorPagina = 10;
+    const mensajesPorPagina = 20;
     let hayMas = false;
     
     const mensajes = await client.db()
@@ -51,7 +51,7 @@ export const GET: RequestHandler = async ({ url }) => {
             return mensajes.map((mensaje) => {
                 return {
                     ...mensaje,
-                    timestamp: mensaje.timestamp.toISOString()
+                    timestamp: mensaje.timestamp
                 };
             }).sort((a, b) => {
                 return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()})})

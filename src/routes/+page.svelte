@@ -4,10 +4,10 @@
   import CrearPost from '$lib/components/FormPost.svelte';
     import { goto } from "$app/navigation";
 
-  let showPopup = false;
-  let posts: { title: string; userId: string; content: string; createdAt: Date; }[] = [];
-  let postAuthors = new Map<string, string>(); //userId, userName
-  let hayMas = false;
+  let showPopup = $state(false);
+  let posts: { title: string; userId: string; content: string; createdAt: Date; }[] = $state([]);
+  let postAuthors = $state(new Map<string, string>()); //userId, userName
+  let hayMas = $state(false);
   let limit = 10;
 
   onMount(() => {
@@ -19,21 +19,25 @@
       .then(response => response.json())
       .then(data => {
         posts = [...posts, ...data.posts];
-        posts.map(post => fetch(`/api/user/${post.userId}`)
-          .then(response => response.json())
-          .then(userData => {
-            postAuthors.set(post.userId, userData.username);
-            postAuthors = new Map(postAuthors);
-          })
-          .catch(error => console.error('Error fetching user:', error))
-        )
+        posts.map(post => {
+          if (!postAuthors.has(post.userId)) { // si ya esta no fetchea
+            fetch(`/api/user/${post.userId}`) // asigna el id del usuario a su nombre
+              .then(response => response.json())
+              .then(userData => {
+                postAuthors.set(post.userId.toString(), userData.username); // .set no actualiza el dom
+                postAuthors = new Map(postAuthors); // cuando se reasigna el mapa se actualiza en el dom
+                console.log(postAuthors.get(post.userId.toString()));
+              }) 
+              .catch(error => console.error('Error fetching user:', error));
+          }
+        });
         hayMas = data.hayMas;
         limit += 10; 
       })
       .catch(error => console.error('Error fetching posts:', error));
-      
     }
-
+    
+    
   function openPopup() {
     showPopup = true;
   }
@@ -114,9 +118,8 @@
   <div class="aparte">
     {#if $user}
       <p>Bienvenido/a, {$user.name}!</p>
-      <button class="botonNuevoPost" on:click={openPopup}>Nuevo Post</button>
+      <button class="botonNuevoPost" onclick={openPopup}>Nuevo Post</button>
       <CrearPost visible={showPopup} close={() => showPopup = false} />
-      <a href="/user/pablo">aaa</a>
     {:else}
       <p>No estás autenticado.</p>
     {/if}
@@ -125,13 +128,13 @@
     {#each posts as post}
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <!-- svelte-ignore a11y_click_events_have_key_events -->
-      <div class="post" on:click={() => goto(`/post/${postAuthors.get(post.userId)}/${post.title}`)}>
+      <div class="post" onclick={() => goto(`/post/${postAuthors.get(post.userId)}/${post.title}`)}>
         <h2>{post.title}</h2>
         <h3>publicado por <a href="/user/{postAuthors.get(post.userId)}">{postAuthors.get(post.userId)}</a></h3>
       </div>
     {/each}
     {#if hayMas}
-      <button on:click={cargarMas}>Cargar más</button>
+      <button onclick={cargarMas}>Cargar más</button>
     {/if}
   </div>
 </div>

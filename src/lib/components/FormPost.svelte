@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+  import { user } from "$lib/auth";
+
   // Accept a prop to control visibility and a callback to close the popup.
   export let visible: boolean;
   //export function close(){}; esto no va
@@ -8,6 +11,8 @@
   let content = "";
   let message = "";
   let error = "";
+  let userId = $user?.username;
+
 
   async function handleSubmit(event: Event) {
     event.preventDefault();
@@ -23,7 +28,7 @@
         message = "Post creado exitosamente.";
         error = "";
         setTimeout(() => {
-          close();
+          goto(`/post/${userId}/${title}`);
         }, 1000);
       } else {
         const errorData = await response.json();
