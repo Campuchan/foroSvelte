@@ -3,20 +3,29 @@
   import { user } from '$lib/auth';
   import { get } from 'svelte/store';
   import { io } from 'socket.io-client';
+  import { goto } from '$app/navigation';
+  import type { Mensaje } from '$lib/types/mensaje';
 
   let socket : any;
   let messages: { from: string; content: string; timestamp: string }[] = $state([]);
   let newMessage = $state("");
   let currentUser : any;
-  let cargando = true;
+  let cargando = $state(true);
 
-  type Mensaje = {
-    from: string;
-    content: string;
-    timestamp: Date;
-  };
+  let users: { name: string; username: string }[] = $state([]);
 
-  onMount(() => {
+  onMount( async () => {
+
+    try {
+      const response = await fetch('/api/user');
+      users = await response.json();
+      console.log("aa " , users);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      cargando = false;
+    }
+
     document.querySelector('#btnEnviar')?.setAttribute('disabled', 'true');
     currentUser = get(user);
     if (!currentUser) {
@@ -27,38 +36,37 @@
     socket.on("connect", () => {
       console.log(`Socket conectado (id ${socket.id}).`);
         fetch("/api/chat?roomId=general&skip=0", {
-                  method: "GET",
-                  headers: {
-                      "Content-Type": "application/json",
-                  }
-              })
-              .then(response => response.json())
-                .then(data => {
-                if (data.mensajes.length > 0) {
-                  messages = data.mensajes.map((msg: Mensaje) => ({
-                    from: msg.from,
-                    content: msg.content,
-                    timestamp: msg.timestamp,
-                  }));
-                  const chatContainer = document.querySelector('.messages');
-                  if (chatContainer) {
-                    //https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
-                    
-                    setTimeout(() => {
-                      if (chatContainer) {
-                        chatContainer.scrollTop = chatContainer.scrollHeight;
-                      }
-                    }, 0); // sin el timeout no espera a que messages actualice
-                  }
-                } else {
-                  messages = [];
-                }
-                })
-              .then(() => {
-                cargando = false;
-                document.querySelector('#btnEnviar')?.removeAttribute('disabled');
-              })
-              .catch(error => console.error('Error fetching messages:', error));
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.mensajes.length > 0) {
+            messages = data.mensajes.map((msg: Mensaje) => ({
+              from: msg.from,
+              content: msg.content,
+              timestamp: msg.timestamp,
+            }));
+            const chatContainer = document.querySelector('.messages');
+            if (chatContainer) {
+              //https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView     
+              setTimeout(() => {
+              if (chatContainer) {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+              }
+              }, 0); // sin el timeout no espera a que messages actualice
+            }
+          } else {
+            messages = [];
+          }
+        })
+        .then(() => {
+          cargando = false;
+          document.querySelector('#btnEnviar')?.removeAttribute('disabled');
+        })
+        .catch(error => console.error('Error fetching messages:', error));
     });
 
     socket.on("user:joined", (msg : { from: string }) => {
@@ -119,15 +127,44 @@
 </script>
 
 <style>
+  .container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .lista-users {
+    z-index: 1000;
+    width: 100%;
+    min-width: 80px;
+    max-width: 160px;
+    margin: 0 auto;
+    margin-left: 120px;
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    overflow-y: auto;
+  }
+  .lista-user-item {
+    padding: 8px;
+    background-color: #f1f1f1;
+    border: 1px solid #bbb;
+    border-collapse: collapse;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
   .chat {
     height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: end;
+    margin-left: -120px;
   }
-
-
   .chat-container {
     width: 100%;
     min-width: 300px;
@@ -158,35 +195,51 @@
     padding: 8px;
   }
   h1 {
-    position:absolute;
-    top: 0;
-    left: 20px;
+    
   }
 </style>
-
-<div class="chat">
-  <h1>Chat</h1>
-  {#if $user}
-    <div class="chat-container">
-      <div class="messages">
-        {#each messages as msg, index (index)} <!-- index es la clave de cada mensaje -->
-          <div class="message">
-            <strong>{msg.from}:</strong> {msg.content}
-            <span style="font-size:0.8em; color: gray;">({new Date(msg.timestamp).toLocaleTimeString()})</span>
-          </div>
-        {/each}
-      </div>
-      <div class="chat-input">
-        <input
-          type="text"
-          placeholder="Escribe tu mensaje..."
-          bind:value={newMessage}
-          on:keydown={mensajeEnter}
-        />
-        <button id="btnEnviar" on:click={sendMessage}>Enviar</button>
-      </div>
+<h1>Chat</h1>
+<div class="container">
+    <div class="lista-users">
+      {#if cargando}
+        <p>Cargando usuarios...</p>
+      {:else if users.length === 0}
+        <p>No hay usuarios disponibles.</p>
+      {:else}
+        <div class="header-lista-users">Usuarios:
+          {#each users as user (user.username)}
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div class="lista-user-item" onclick={() => goto("/chat/" + user.username)} style="cursor: pointer;">
+              <span>{user.name}</span>
+            </div>
+          {/each}
+        </div>
+      {/if}
     </div>
-  {:else}
-    <p>Debes <a href="/login">iniciar sesión</a> para chatear.</p>
-  {/if}
+    <div class="chat">
+      {#if $user}
+        <div class="chat-container">
+          <div class="messages">
+            {#each messages as msg, index (index)} <!-- index es la clave de cada mensaje -->
+              <div class="message">
+                <strong>{msg.from}:</strong> {msg.content}
+                <span style="font-size:0.8em; color: gray;">({new Date(msg.timestamp).toLocaleTimeString()})</span>
+              </div>
+            {/each}
+          </div>
+          <div class="chat-input">
+            <input
+              type="text"
+              placeholder="Escribe tu mensaje..."
+              bind:value={newMessage}
+              onkeydown={mensajeEnter}
+            />
+            <button id="btnEnviar" onclick={sendMessage}>Enviar</button>
+          </div>
+        </div>
+      {:else}
+        <p>Debes <a href="/login">iniciar sesión</a> para chatear.</p>
+      {/if}
+    </div>
 </div>

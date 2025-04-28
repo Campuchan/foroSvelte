@@ -108,10 +108,6 @@
   
   <div id="comentarios">
     <h2>Comentarios</h2>
-    {#each data.comentarios as comentario (comentario._id)}
-      <Comentario comentario={comentario} funcionComentar={handleCommentSubmit}/>
-    {/each}
-    
     {#if $user}
       <div class="nuevo-comentario">
         <form on:submit|preventDefault={(e) => handleCommentSubmit(e, "", contenidoComentarioNuevo)}>
@@ -126,5 +122,9 @@
         {/if}
       </div>
     {/if}
+    {#each data.comentarios as comentario (comentario._id)}
+      <Comentario comentario={comentario} funcionComentar={handleCommentSubmit}/>
+    {/each}
+    
   </div>
 </div>

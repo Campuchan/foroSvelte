@@ -1,11 +1,7 @@
-import { redirect, type Handle } from '@sveltejs/kit';
-import { MONGO_URL } from '$env/static/private';
+import { type Handle } from '@sveltejs/kit';
 import { start_mongo, client } from '$db/mongo';
-import { ObjectId } from 'mongodb';
-import { randomBytes } from 'crypto';
 import { Server as SocketIOServer } from 'socket.io';
 import { createServer } from 'http';
-import { time } from 'console';
 
 start_mongo().then(() => {
     console.log("MongoDB conectado");

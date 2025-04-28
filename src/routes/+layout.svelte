@@ -45,7 +45,7 @@
         display: inline-block;
     }
     header h1 ::after {
-        content : 'v0.2';
+        content : 'v0.3 (faltan estilos)';
         font-size: 16px;
         color: #ccc;
     }
@@ -66,6 +66,7 @@
         width: 100%; 
         padding: 20px;
         display: flex;
+        flex-direction: column;
         justify-content: center; 
         align-items: center;
     }

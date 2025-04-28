@@ -50,14 +50,16 @@
 </script>
 
 <style>
-    div {
-        width: 100%;
-        height: 100%;
+    .container {
         margin: 0;
-        padding: 0;
+        padding: 12px;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
+        background-color: #f1f1f1;
+        border: 1px solid #bbb;
+        border-radius: 10px;
     }
 
     form {
@@ -96,7 +98,7 @@
     }
 </style>
 
-<div>
+<div class="container">
     <form on:submit|preventDefault={handleSubmit}>
         <h1>Registro</h1>
         <div>
@@ -117,6 +119,7 @@
         </div>
         <button type="submit">Registrar</button>
     </form>
+    <p>¿Ya tienes una cuenta? <a href="/login">Iniciar Sesión</a></p>
 </div>
 
 {#if message}
