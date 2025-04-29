@@ -3,44 +3,70 @@
   import { io } from 'socket.io-client';
   import { user } from '$lib/auth';
   import { get } from 'svelte/store';
-  import { goto } from '$app/navigation';
-    import type { Mensaje } from '$lib/types/mensaje';
+  import { goto, invalidate, invalidateAll } from '$app/navigation';
+  import type { Mensaje } from '$lib/types/mensaje';
+  import { PUBLIC_WS_URL } from '$env/static/public';
+  import './chat.css';
+  
 
   //export let data: { user2: { id: string; name: string; email: string; username: string } };
   const { data } = $props<{ data: { user2: { id: string; name: string; email: string; username: string } } }>();
+  const currentUser = get(user);
 
+  let roomId = $state("");
   let socket: any;
-  let privateMessages: { from: string; content: string; timestamp: string }[] = $state([]);
-  let newPrivateMessage = $state("");
+  let messages: { from: string; content: string; timestamp: string }[] = $state([]);
+  let newMessage = $state("");
   let cargando = $state(true);
-  let roomId = "";
-  
   let users: { name: string; username: string }[] = $state([]);
 
-  const currentUser = get(user);
-  const user2Id = data.user2.id;  
-
+  /**
+   * https://stackoverflow.com/a/21682946
+   * 
+   * @param string
+   * @param saturation
+   * @param lightness
+   */
+  var stringToColor = (string : string, saturation: number = 100, lightness: number = 75) => {
+    let hash = 0;
+    for (let i = 0; i < string.length; i++) {
+      hash = string.charCodeAt(i) + ((hash << 5) - hash);
+      hash = hash & hash;
+    }
+    return `hsl(${(hash % 360)}, ${saturation}%, ${lightness}%)`;
+  }
+  
   function generateRoomId(userA: string, userB: string): string {
     return [userA, userB].sort().join('-');
   }
-  
-  onMount( async () => {
+
+  function cambiarUsuario(userId: string) {
+    console.log("cambiando usuario a", userId);
+    invalidate("/chat/" + userId);
+  }
+
+  onMount(async () => {
+    console.log("aaaaaaaaa")
+    if(data.tipo == "publico"){ // segun si [[user2]] esta definido o no
+      roomId = "general"
+    } else {
+      roomId = generateRoomId(data.user2.id, get(user)?.id || "");
+    }
     try {
       const response = await fetch('/api/user');
       users = await response.json();
-      console.log("aa " , users);
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {
       cargando = false;
     }
 
+
     if (!currentUser) {
       goto('/?error=El usuario no está autenticado');
       return;
     }
-    roomId = generateRoomId(currentUser.id, user2Id);
-    socket = io( "localhost:34321" , { transports: ['websocket'] });
+    socket = io( PUBLIC_WS_URL , { transports: ['websocket'] });
     socket.on("connect", () => {
       console.log(`Socket conectado (id ${socket.id}).`);
       socket.emit('join:room', { roomId });
@@ -55,10 +81,10 @@
         .then(response => response.json())
         .then(data => {
           if (data.mensajes.length > 0) {
-            privateMessages = data.mensajes.map((msg: Mensaje) => ({
-              from: msg.from,
-              content: msg.content,
-              timestamp: msg.timestamp,
+            messages = data.mensajes.map((mensaje: Mensaje) => ({
+              from: mensaje.from,
+              content: mensaje.content,
+              timestamp: mensaje.timestamp,
             }));
             const chatContainer = document.querySelector('.messages');
             if (chatContainer) {
@@ -70,7 +96,7 @@
               }, 0); // sin el timeout no espera a que messages actualice
             }
           } else {
-            privateMessages = [];
+            messages = [];
           }
         })
         .then(() => {
@@ -88,21 +114,21 @@
     //     socket.emit('join:room', { roomId });
     // });
 
-    socket.on('privateMessage', (msg: { from: string; content: string; timestamp: string }) => {
-      console.log("Mensaje privado recibido:", msg);
-      privateMessages = [...privateMessages, msg];
+    socket.on('message', (mensaje: { from: string; content: string; timestamp: string }) => {
+      console.log("Mensaje privado recibido:", mensaje);
+      messages = [...messages, mensaje];
     });
   });
 
-  async function sendPrivateMessage() {
-    if (!newPrivateMessage.trim()) return;
+  async function sendMessage() {
+    if (!newMessage.trim()) return;
     const message = {
       from: currentUser?.username || currentUser?.name || 'Desconocido', // si en algun planeta no existe el username o el name en el mensaje pone 'Desconocido'
-      content: newPrivateMessage,
+      content: newMessage,
       timestamp: new Date().toISOString(),
       roomId: roomId
     };
-    socket.emit('privateMessage', { roomId, message });
+    socket.emit('message', { roomId, message });
 
     try {
       const response = await fetch("/api/chat", {
@@ -123,13 +149,11 @@
       console.error("Error sending the message to the API:", error);
     }
 
-    newPrivateMessage = "";
+    newMessage = "";
   }
 </script>
-
 <style>
-
-.container {
+  .container {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -151,6 +175,12 @@
     background-color: #f9f9f9;
     overflow-y: auto;
   }
+  .lista-users-container{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
   .lista-user-item {
     padding: 8px;
     background-color: #f1f1f1;
@@ -158,6 +188,8 @@
     border-collapse: collapse;
     cursor: pointer;
     transition: background-color 0.3s;
+    text-decoration: none;
+    color: inherit;
   }
   .chat {
     height: 100%;
@@ -197,59 +229,55 @@
     padding: 8px;
   }
 </style>
-
-<h1>Chat Privado</h1>
+<h1>Chat</h1>
 <div class="container">
-  <div class="lista-users">
-    {#if cargando}
+    <div class="lista-users">
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      {#if cargando}
       <p>Cargando usuarios...</p>
       {:else if users.length === 0}
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <!-- svelte-ignore a11y_click_events_have_key_events -->
-      <div class="lista-user-item" onclick={() => goto("/chat/", { invalidateAll: true })} style="cursor: pointer;">
+      <a class="lista-user-item" href="/chat/" style="cursor: pointer;" data-sveltekit-reload>
         <span>Chat general</span>
-      </div>
+      </a>
       <p>No hay usuarios disponibles.</p>
-    {:else}
-      <div class="header-lista-users">Usuarios:
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <div class="lista-user-item" onclick={() => goto("/chat/", { invalidateAll: true })} style="cursor: pointer;">
-          <span>Chat general</span>
-        </div>
+      {:else}
+      <div class="header-lista-users">Usuarios:</div>
+      <div class="lista-users-container">
+        <a class="lista-user-item" href="/chat/" style="cursor: pointer;" data-sveltekit-reload>
+          <span>Chat general</span></a>
         {#each users as user (user.username)}
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <!-- svelte-ignore a11y_no_static_element_interactions -->
-          <div class="lista-user-item" onclick={() => goto("/chat/" + user.username, { invalidateAll: true })} style="cursor: pointer;">
-            <span>{user.name}</span>
-          </div>
+          <a class="lista-user-item" href="/chat/{user.username}" style="cursor: pointer;" data-sveltekit-reload>
+            <span>{user.name}</span></a>
         {/each}
       </div>
-    {/if}
-  </div>
-  <div class="chat">
-    {#if currentUser}
-      <div class="chat-container">
-        <div class="messages">
-          {#each privateMessages as msg (msg.timestamp)}
-            <div class="message">
-              <strong>{msg.from}:</strong> {msg.content}
-              <span style="font-size:0.8em; color: gray;">({new Date(msg.timestamp).toLocaleTimeString()})</span>
-            </div>
-          {/each}
+      {/if}
+    </div>
+    <div class="chat">
+      {#if $user}
+        <div class="chat-container">
+          <div class="messages">
+            {#each messages as mensaje, index (index)} <!-- index es la clave de cada mensaje -->
+              <div class="message">
+                <strong style="color: {stringToColor(mensaje.from)};">{mensaje.from}:</strong> {mensaje.content}
+                <span style="font-size:0.8em; color: gray;">({new Date(mensaje.timestamp).toLocaleTimeString()})</span>
+              </div>
+            {/each}
+          </div>
+          <div class="chat-input">
+            <input
+              type="text"
+              placeholder="Escribe tu mensaje..."
+              bind:value={newMessage}
+              onkeydown={sendMessage}
+            />
+            <button id="btnEnviar" onclick={sendMessage}>Enviar</button>
+          </div>
         </div>
-        <div class="chat-input">
-          <input
-            type="text"
-            placeholder="Escribe tu mensaje..."
-            bind:value={newPrivateMessage}
-            onkeydown={(e) => e.key === 'Enter' && sendPrivateMessage()}
-          />
-          <button onclick={sendPrivateMessage}>Enviar</button>
-        </div>
-      </div>
-    {:else}
-      <p>Debes <a href="/login">iniciar sesión</a> para chatear.</p>
-    {/if}
-  </div>
+      {:else}
+        <p>Debes <a href="/login">iniciar sesión</a> para chatear.</p>
+      {/if}
+    </div>
 </div>

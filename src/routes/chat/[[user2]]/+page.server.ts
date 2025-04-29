@@ -3,6 +3,11 @@ import { client } from '$db/mongo';
 
 export const load = async ({ params }) => {
     const { user2 } = params;
+    if(!user2) {
+        return {
+            tipo: 'publico'
+        }
+    }
     const db = client.db();
 
     const user2name = await db.collection('users').findOne({ username: user2 });
@@ -12,6 +17,7 @@ export const load = async ({ params }) => {
     }
 
     return {
+        tipo: 'privado',
         user2: {
             id: user2name._id.toString(),
             name: user2name.name,

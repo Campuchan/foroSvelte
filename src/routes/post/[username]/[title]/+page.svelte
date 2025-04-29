@@ -125,6 +125,5 @@
     {#each data.comentarios as comentario (comentario._id)}
       <Comentario comentario={comentario} funcionComentar={handleCommentSubmit}/>
     {/each}
-    
   </div>
 </div>
