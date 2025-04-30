@@ -9,15 +9,13 @@ export const POST = async ({ request }) => {
   const formData = await request.formData();
   const nombreArchivo : string = formData.get('nombreArchivo') as string; // nombre con el que se guardara la imagen
   const file = formData.get('image');
-
-  console.log("Guardando IMAGEN con nombre: ", nombreArchivo);
+  const tipo = formData.get('tipo'); 
 
   if (!(file instanceof File)) {
     return json({ error: 'No llego imagen' }, { status: 400 });
   }
 
   const tamanoMaximo = 8 * 1024 * 1024; // 8MB
-
 
   if (file.size > tamanoMaximo) {
     return json({ error: 'La imagen es demasiado grande, tamaño maximo 8MB' }, { status: 400 });
@@ -26,9 +24,18 @@ export const POST = async ({ request }) => {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  const sharpBuffer = await sharp(buffer)
+  let sharpBuffer = await sharp(buffer)
     .jpeg({ quality: 80 })
     .toBuffer();
+  
+  if(tipo === 'perfil') {
+    // 200x200px
+    sharpBuffer = await sharp(sharpBuffer)
+      // cover recorta por los lados
+      // https://sharp.pixelplumbing.com/api-resize/
+      .resize(200, 200, { fit: 'cover' })
+      .toBuffer();
+  }
 
   // static/images
   const dirImagenes = path.join(process.cwd(), 'static', 'images');

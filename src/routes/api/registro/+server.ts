@@ -15,10 +15,7 @@ export const POST: RequestHandler = async ({ request, cookies, fetch}) => {
         throw error(400, 'Faltan datos obligatorios');
     }
     let imagen = formData.get('imagenPerfil') as File;
-    formData.forEach((value, key) => {
-        console.log("FomrData: ", key, value);
-    })
-    console.log("Imagen ssssss: ", imagen);
+    
     if(!(imagen instanceof File)) {
         console.log("Imagen no subida o no valida, usando imagen de gato por defecto");
         const imagenCataas = await fetch('https://cataas.com/cat?type=square&size=200&width=200&height=200');
@@ -45,20 +42,16 @@ export const POST: RequestHandler = async ({ request, cookies, fetch}) => {
         username,
         password: hashedPassword
     });
-    if(imagen instanceof Blob) {
-        console.log("Guardando IMAGEN con nombre: ", username);
-    } else {
-        console.log("aaaaaaaaaaaaaaaa")
-        console.log(typeof imagen);
-    }
+    
     if (imagen instanceof Blob) {
         const imgForm = new FormData();
         imgForm.append("nombreArchivo", username); // se guarda con el nombre de usuario
         imgForm.append("image", imagen);
-    
+        imgForm.append("tipo", "perfil");
         const imageResponse = await fetch('/api/images', {
           method: 'POST',
-          body: imgForm
+          body: imgForm,
+          
         });
     
         if (!imageResponse.ok) {

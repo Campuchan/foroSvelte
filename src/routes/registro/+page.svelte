@@ -173,7 +173,10 @@
             <input id="username" type="text" bind:value={username}
                 onkeydown={() => {
                     username = username.toLowerCase();
-                }} 
+                }}
+                onblur={() => {
+                    username = username.toLowerCase();
+                }}
                 required />
         </div>
         <div>
