@@ -39,10 +39,6 @@ if (!globalThis.socketServer) {
             socket.leave(room);
         });
 
-        socket.on('privateMessage', ({ roomId, message }) => {
-            io.to(roomId).emit('privateMessage', message );
-        });
-
         socket.on('chat:message', (message) => {
             io.emit('chat:message', message);
         });

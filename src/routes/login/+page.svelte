@@ -95,7 +95,14 @@
         <h1>Iniciar Sesión</h1>
         <div>
             <label for="username">Nombre de usuario:</label>
-            <input id="username" type="text" bind:value={username} required />
+            <input id="username" type="text" bind:value={username}
+                on:keydown={() => {
+                    username = username.toLowerCase().trim();
+                }} 
+                on:blur={() => {
+                    username = username.toLowerCase().trim();
+                }}
+                required />
         </div>
         <div>
             <label for="password">Contraseña:</label>

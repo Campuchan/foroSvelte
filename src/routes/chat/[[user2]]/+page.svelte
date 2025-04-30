@@ -114,7 +114,7 @@
     //     socket.emit('join:room', { roomId });
     // });
 
-    socket.on('message', (mensaje: { from: string; content: string; timestamp: string }) => {
+    socket.on('chat:message', (mensaje: { from: string; content: string; timestamp: string }) => {
       console.log("Mensaje privado recibido:", mensaje);
       messages = [...messages, mensaje];
     });
@@ -128,7 +128,7 @@
       timestamp: new Date().toISOString(),
       roomId: roomId
     };
-    socket.emit('message', { roomId, message });
+    socket.emit('chat:message', { roomId, message });
 
     try {
       const response = await fetch("/api/chat", {
@@ -163,6 +163,7 @@
 
   .lista-users {
     z-index: 1000;
+    max-height: 440px;
     width: 100%;
     min-width: 80px;
     max-width: 160px;
@@ -174,6 +175,7 @@
     border-radius: 5px;
     background-color: #f9f9f9;
     overflow-y: auto;
+    
   }
   .lista-users-container{
     height: 100%;
@@ -271,9 +273,9 @@
               type="text"
               placeholder="Escribe tu mensaje..."
               bind:value={newMessage}
-              onkeydown={sendMessage}
+              onkeydown={(e) => e.key === 'Enter' && sendMessage()}
             />
-            <button id="btnEnviar" onclick={sendMessage}>Enviar</button>
+            <button id="btnEnviar" onclick={() => sendMessage()}>Enviar</button>
           </div>
         </div>
       {:else}
