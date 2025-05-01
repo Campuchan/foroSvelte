@@ -46,7 +46,7 @@
             .catch((error) => {
               console.error('Error fetching user data:', error);
             });
-          previewImage = `/images/${username}.jpg`;
+          previewImage = `/images/${username}.png`;
           componenteVisible = true;
           calcularPosicion(event);
         }

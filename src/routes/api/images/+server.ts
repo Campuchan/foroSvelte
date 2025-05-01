@@ -26,7 +26,7 @@ export const POST = async ({ request }) => {
 
   let sharpBuffer = await sharp(buffer)
     //.jxl({ quality: 100, effort: 2 }) // queria probar jxl pero necesita librerias raras https://www.libvips.org/install.html 
-    .jpeg({ quality: 100 })
+    .png({ quality: 100 })
     .toBuffer();
   
   if(tipo === 'perfil') {
@@ -44,7 +44,7 @@ export const POST = async ({ request }) => {
   const dirImagenes = path.join(process.cwd(), 'static', 'images');
   await fs.mkdir(dirImagenes, { recursive: true });
   // las imagenes se guardan con el nombre del usuario y jpg
-  const nombreArchivoFinal = `${nombreArchivo}.jpg`;
+  const nombreArchivoFinal = `${nombreArchivo}.png`;
   const pathFinal = path.join(dirImagenes, nombreArchivoFinal);
   log('Guardando imagen en: ', pathFinal);
 

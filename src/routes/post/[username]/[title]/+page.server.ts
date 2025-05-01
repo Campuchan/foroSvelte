@@ -31,7 +31,7 @@ function crearComentarioTree(comentarios: ComentarioFrontend[]): ComentarioFront
       }
     });
   
-    console.log("Arbol de comentarios: " + JSON.stringify(arbol, null, 2));
+    //console.log("Arbol de comentarios: " + JSON.stringify(arbol, null, 2));
     return arbol;
   }
 

@@ -1,5 +1,6 @@
 <script lang="ts">
   import Comentario from './Comentario.svelte';
+  import { user } from '$lib/auth';
 
   export let comentario: {
     _id: string;
@@ -13,7 +14,6 @@
 
   export let funcionComentar: (event: Event, parentId: string, contenidoComentario: string) => Promise<void>;
 
-
   function toggleReply() {
     comentario.respuestaFormVisible = !comentario.respuestaFormVisible;
   }
@@ -24,7 +24,7 @@
   <small>
     Publicado por <a href={"/user/" + comentario.username}>{comentario.username}</a> en {new Date(comentario.timestamp).toLocaleString()}
   </small>
-  {#if comentario.respuestaFormVisible !== undefined}
+  {#if $user}
     <button on:click={toggleReply}>
       {comentario.respuestaFormVisible ? "Cancelar" : "Responder"}
     </button>
@@ -35,7 +35,7 @@
       <form on:submit|preventDefault={event => funcionComentar(event, comentario._id, comentario.contenidoRespuesta ?? "")}> 
         <!-- si contenidoRespuesta no existe lo pone vacio,
          typescript es un poco tonto a veces-->
-        <textarea bind:value={comentario.contenidoRespuesta} placeholder="Escribe tu respuesta..." required></textarea>
+        <textarea class="comentarioNuevo" bind:value={comentario.contenidoRespuesta} placeholder="Escribe tu respuesta..." required></textarea>
         <button type="submit">Responder</button>
       </form>
     </div>
@@ -56,6 +56,10 @@
     padding: 8px;
     margin: 8px 0;
   }
+  .comentario a {
+    text-decoration: none;
+    color: #007BFF;
+  }
   .respuestas {
     margin-top: 8px;
     padding-left: 16px;
@@ -63,6 +67,9 @@
   }
   .inline-comentario-form {
     margin-top: 8px;
+  }
+  .comentarioNuevo {
+    resize: vertical;
   }
   textarea {
     width: 100%;

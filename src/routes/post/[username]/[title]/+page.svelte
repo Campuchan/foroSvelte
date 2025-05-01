@@ -15,7 +15,7 @@
   //     contenidoRespuesta: ""
   //   };
   // });
-  console.log("POST: ", post)
+  //console.log("POST: ", post)
 
   data.comentarios.forEach((comentario) => {
     comentario.respuestaForm = false;
@@ -28,7 +28,6 @@
   
   async function handleCommentSubmit(event: Event, parentId: string, contenidoComentario: string) {
     event.preventDefault();
-    console.log("aaaaaaaaaaaaaaaaaaaaaaaaaa");
     try {
       const response = await fetch("/api/comentarios", {
         method: "POST",
@@ -96,26 +95,31 @@
     text-decoration: none;
     color: #007BFF;
   }
-
-  
+  #comentarios {
+    margin-top: 16px;
+    padding: 16px;
+    border: 1px solid #ccc;
+    border-top: 1px solid #007BFF;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  .comentarioNuevo {
+    resize: vertical;
+  }
   .success {
     color: green;
   }
-  
   .error {
     color: red;
   }
-  
   .nuevo-comentario {
     margin-top: 16px;
   }
-  
   textarea {
     width: 100%;
     height: 100px;
     margin-bottom: 8px;
   }
-  
   button {
     padding: 8px 16px;
     background-color: #007BFF;
@@ -140,7 +144,7 @@
     {#if $user}
       <div class="nuevo-comentario">
         <form on:submit|preventDefault={(e) => handleCommentSubmit(e, "", contenidoComentarioNuevo)}>
-          <textarea bind:value={contenidoComentarioNuevo} placeholder="Escribe un comentario..." required></textarea>
+          <textarea class="comentarioNuevo" bind:value={contenidoComentarioNuevo} placeholder="Escribe un comentario..." required></textarea>
           <button type="submit">Comentar</button>
         </form>
         {#if mensajeExito}

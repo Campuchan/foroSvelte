@@ -167,7 +167,7 @@
           <p><strong>Nombre de Usuario:</strong> {userData.username}</p>
           <p><strong>Correo Electrónico:</strong> {userData.email}</p>
           <div class="imagen-perfil">
-            <img src={"/images/"+userData.username+".jpg"} alt="Imagen de perfil">
+            <img src={"/images/"+userData.username+".png"} alt="Imagen de perfil">
           </div>
         {/if}
         <button onclick="{() => { formUpdate = !formUpdate; }}">

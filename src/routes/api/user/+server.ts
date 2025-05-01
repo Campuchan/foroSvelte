@@ -28,9 +28,9 @@ export const PUT: RequestHandler = async ({ request, locals, fetch }) => {
   if (locals.user.username != data.get('username')){
     return new Response(JSON.stringify({ error: 'No puedes editar este usuario' }), { status: 401 });
   }
-  const oldname = data.get('oldname')?.toString().toLowerCase() || '';
+  const oldname = data.get('oldname')?.toString() || '';
   const oldemail = data.get('oldemail')?.toString() || '';
-  const name = data.get('name')?.toString().toLowerCase() || '';
+  const name = data.get('name')?.toString()|| '';
   const imagen = data.get('imagenPerfil') as File;
   const email = data.get('email')?.toString() || '';
 

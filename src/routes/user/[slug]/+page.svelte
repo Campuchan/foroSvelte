@@ -12,7 +12,7 @@
 <h1>Perfil de Usuario</h1>
 
 {#if data.user}
-    <img src={"/images/"+data.user.username+".jpg"} class="imagen-perfil" alt="Imagen de perfil">
+    <img src={"/images/"+data.user.username+".png"} class="imagen-perfil" alt="Imagen de perfil">
     <p><strong>Nombre:</strong> {data.user.name}</p>
     <p><strong>Nombre de Usuario:</strong> {data.user.username}</p>
     <p><strong>Correo Electrónico:</strong> {data.user.email}</p>
