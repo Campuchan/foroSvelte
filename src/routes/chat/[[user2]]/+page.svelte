@@ -7,6 +7,7 @@
   import type { Mensaje } from '$lib/types/mensaje';
   import { PUBLIC_WS_URL } from '$env/static/public';
   import './chat.css';
+  import { formatoDate, stringToColor } from '$lib/functions';
   
 
   //export let data: { user2: { id: string; name: string; email: string; username: string } };
@@ -20,21 +21,6 @@
   let cargando = $state(true);
   let users: { name: string; username: string }[] = $state([]);
 
-  /**
-   * https://stackoverflow.com/a/21682946
-   * 
-   * @param string
-   * @param saturation
-   * @param lightness
-   */
-  var stringToColor = (string : string, saturation: number = 100, lightness: number = 75) => {
-    let hash = 0;
-    for (let i = 0; i < string.length; i++) {
-      hash = string.charCodeAt(i) + ((hash << 5) - hash);
-      hash = hash & hash;
-    }
-    return `hsl(${(hash % 360)}, ${saturation}%, ${lightness}%)`;
-  }
   
   function generateRoomId(userA: string, userB: string): string {
     return [userA, userB].sort().join('-');
@@ -117,6 +103,16 @@
     socket.on('chat:message', (mensaje: { from: string; content: string; timestamp: string }) => {
       console.log("Mensaje privado recibido:", mensaje);
       messages = [...messages, mensaje];
+      console.log("Mensajes:", messages);
+      const chatContainer = document.querySelector('.messages');
+      if (chatContainer) {
+        //https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView     
+        setTimeout(() => {
+          if (chatContainer) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+          }
+        }, 0); // sin el timeout no espera a que messages actualice
+      }
     });
   });
 
@@ -152,107 +148,28 @@
     newMessage = "";
   }
 </script>
-<style>
-  .container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: stretch;
-    width: 100%;
-  }
-
-  .lista-users {
-    z-index: 1000;
-    max-height: 440px;
-    width: 100%;
-    min-width: 80px;
-    max-width: 160px;
-    margin: 0 auto;
-    margin-left: 120px;
-    margin-top: 20px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-    overflow-y: auto;
-    
-  }
-  .lista-users-container{
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .lista-user-item {
-    padding: 8px;
-    background-color: #f1f1f1;
-    border: 1px solid #bbb;
-    border-collapse: collapse;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    text-decoration: none;
-    color: inherit;
-  }
-  .chat {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: end;
-    margin-left: -120px;
-  }
-  .chat-container {
-    width: 100%;
-    min-width: 300px;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  .messages {
-    max-height: 400px;
-    overflow-y: auto;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-    padding: 10px;
-  }
-  .message {
-    padding: 8px;
-    border-bottom: 1px solid #eee;
-  }
-  .message strong {
-    margin-right: 8px;
-  }
-  .chat-input {
-    display: flex;
-    gap: 10px;
-  }
-  .chat-input input[type="text"] {
-    flex-grow: 1;
-    padding: 8px;
-  }
-</style>
-<h1>Chat</h1>
+<h1>Chat {#if data.user2 }con {data.user2.name}{/if}</h1>
 <div class="container">
     <div class="lista-users">
       <!-- svelte-ignore a11y_click_events_have_key_events -->
       <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <div class="chat-general">
+        <a class="lista-user-item" href="/chat/" style="cursor: pointer;" data-sveltekit-reload>
+          Chat general
+        </a>
+      </div>
       {#if cargando}
       <p>Cargando usuarios...</p>
       {:else if users.length === 0}
-      <a class="lista-user-item" href="/chat/" style="cursor: pointer;" data-sveltekit-reload>
-        <span>Chat general</span>
-      </a>
       <p>No hay usuarios disponibles.</p>
       {:else}
       <div class="header-lista-users">Usuarios:</div>
       <div class="lista-users-container">
-        <a class="lista-user-item" href="/chat/" style="cursor: pointer;" data-sveltekit-reload>
-          <span>Chat general</span></a>
         {#each users as user (user.username)}
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <a class="lista-user-item" href="/chat/{user.username}" style="cursor: pointer;" data-sveltekit-reload>
-            <span>{user.name}</span></a>
+            {user.name}</a>
         {/each}
       </div>
       {/if}
@@ -263,8 +180,8 @@
           <div class="messages">
             {#each messages as mensaje, index (index)} <!-- index es la clave de cada mensaje -->
               <div class="message">
-                <strong style="color: {stringToColor(mensaje.from)};">{mensaje.from}:</strong> {mensaje.content}
-                <span style="font-size:0.8em; color: gray;">({new Date(mensaje.timestamp).toLocaleTimeString()})</span>
+                <strong style="color: {stringToColor(mensaje.from, 100, 25)};">{mensaje.from}:</strong> {mensaje.content}
+                <span style="font-size:0.8em; color: gray;">({formatoDate(new Date(mensaje.timestamp))})</span>
               </div>
             {/each}
           </div>

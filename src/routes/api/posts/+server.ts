@@ -18,6 +18,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         content: data.content,
         createdAt: new Date()
     };
+    console.log('Creando post: ', post);
 
     const result = await client.db().collection('posts').insertOne(post);
     if (result.acknowledged) {

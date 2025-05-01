@@ -1,6 +1,7 @@
 <script lang="ts">
     import { page } from '$app/state';
     import { user } from '$lib/auth';
+  import FotoFlotante from '$lib/components/fotoFlotante.svelte';
 
     $: user.set(page.data.user || null);
 </script>
@@ -10,7 +11,6 @@
         font-family: Arial, sans-serif;
         margin: 0;
         padding: 0;
-        box-sizing: border-box;
     }
 
     .layout {
@@ -24,8 +24,8 @@
 
     header {
         position: relative;
-        height: 120px;
-        width: 100%;
+        height: 55px;
+        min-height: 55px;
         z-index: 1000;
         background-color: #333;
         color: white;
@@ -45,7 +45,7 @@
         display: inline-block;
     }
     header h1 ::after {
-        content : 'v0.3 (faltan estilos)';
+        content : 'v1.0';
         font-size: 16px;
         color: #ccc;
     }
@@ -64,7 +64,7 @@
         position: relative;
         flex-grow: 1;
         width: 100%; 
-        padding: 20px;
+        padding-top: 20px;
         display: flex;
         flex-direction: column;
         justify-content: center; 
@@ -86,7 +86,7 @@
         <h1><a href="/">ForoSvelte</a></h1>
         <nav>
             {#if $user}
-                <a href="/chat">Chat (nuevo!!)</a>
+                <a href="/chat">Chat</a>
                 <a href="/logout">Cerrar Sesión</a>
                 <a href="/perfil">{$user.username}</a>
             {:else}
@@ -102,3 +102,4 @@
 
     <footer>Foro - Pablo Campuzano Cuadrado</footer>
 </div>
+<FotoFlotante/> <!--cosa guay-->

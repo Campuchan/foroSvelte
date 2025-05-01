@@ -57,7 +57,6 @@ export const load = async ({ params }) => {
     const comentarios = await db.collection('comentarios')
         .find({ postId: post._id.toString() })
         .toArray();
-    console.log("Comentarios: " + JSON.stringify(comentarios, null, 2));
 
     await Promise.all(comentarios.map(async comentario => {
         if (!comentarioAutores.has(comentario.userId.toString())) {
@@ -78,7 +77,7 @@ export const load = async ({ params }) => {
             username: username,
             title: post.title,
             content: post.content,
-            timestamp: post.timestamp
+            createdAt: post.createdAt
         },
         comentarios: crearComentarioTree(comentarios.map((comentario) => {
             return {

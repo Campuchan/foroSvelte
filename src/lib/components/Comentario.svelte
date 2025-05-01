@@ -6,7 +6,7 @@
     content: string;
     username: string;
     timestamp: Date;
-    respuestaForm?: boolean;
+    respuestaFormVisible?: boolean;
     contenidoRespuesta?: string;
     respuestas: any[];
   };
@@ -15,7 +15,7 @@
 
 
   function toggleReply() {
-    comentario.respuestaForm = !comentario.respuestaForm;
+    comentario.respuestaFormVisible = !comentario.respuestaFormVisible;
   }
 </script>
 
@@ -24,13 +24,13 @@
   <small>
     Publicado por <a href={"/user/" + comentario.username}>{comentario.username}</a> en {new Date(comentario.timestamp).toLocaleString()}
   </small>
-  {#if comentario.respuestaForm !== undefined}
+  {#if comentario.respuestaFormVisible !== undefined}
     <button on:click={toggleReply}>
-      {comentario.respuestaForm ? "Cancelar" : "Responder"}
+      {comentario.respuestaFormVisible ? "Cancelar" : "Responder"}
     </button>
   {/if}
 
-  {#if comentario.respuestaForm}
+  {#if comentario.respuestaFormVisible}
     <div class="inline-comentario-form">
       <form on:submit|preventDefault={event => funcionComentar(event, comentario._id, comentario.contenidoRespuesta ?? "")}> 
         <!-- si contenidoRespuesta no existe lo pone vacio,

@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import Comentario from '$lib/components/Comentario.svelte';
+  import { formatoDate } from '$lib/functions.js';
   
   export let data;
   
@@ -14,6 +15,8 @@
   //     contenidoRespuesta: ""
   //   };
   // });
+  console.log("POST: ", post)
+
   data.comentarios.forEach((comentario) => {
     comentario.respuestaForm = false;
     comentario.contenidoRespuesta = "";
@@ -68,6 +71,32 @@
     min-width: 650px;
     height: 100%;
   }
+  h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+  }
+  h2 {
+    margin: 0;
+    margin-bottom: 16px;
+    font-size: 1rem;
+    font-weight: normal;
+    color: grey;
+  }
+  p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #333;
+    white-space: pre-wrap;
+  }
+
+  h2 a {
+    text-decoration: none;
+    color: #007BFF;
+  }
+
   
   .success {
     color: green;
@@ -103,7 +132,7 @@
 
 <div class="container">
   <h1>{post.title}</h1>
-  <h2>por <a href="/user/{post.username}">{post.username}</a></h2>
+  <h2>por <a href="/user/{post.username}">{post.username}</a> a las {formatoDate(post.createdAt)}</h2>
   <p>{post.content}</p>
   
   <div id="comentarios">

@@ -30,7 +30,7 @@ export const GET: RequestHandler = async ({ url }) => {
     const roomId = url.searchParams.get('roomId');
     const skip = parseInt(url.searchParams.get('skip') || "0");
     
-    console.log('Recibiendo mensajes de la sala:', roomId, 'con skip:', skip);
+    //console.log('Recibiendo mensajes de la sala:', roomId, 'con skip:', skip);
 
     if (!roomId) {
         return new Response(JSON.stringify({ info: 'falta id de sala' }), { status: 469 });

@@ -2,6 +2,8 @@ import { type Handle } from '@sveltejs/kit';
 import { start_mongo, client } from '$db/mongo';
 import { Server as SocketIOServer } from 'socket.io';
 import { createServer } from 'http';
+import { PUBLIC_WS_PORT } from '$env/static/public';
+const PORT = PUBLIC_WS_PORT; // 34321
 
 start_mongo().then(() => {
     console.log("MongoDB conectado");
@@ -21,7 +23,7 @@ if (!globalThis.socketServer) {
     });
 
     io.on('connection', (socket) => {
-        console.log('Usuario conectado:', socket.id);
+        //console.log('Usuario conectado:', socket.id);
 
         //salas
         socket.on('join:room', (data) => {
@@ -39,17 +41,18 @@ if (!globalThis.socketServer) {
             socket.leave(room);
         });
 
-        socket.on('chat:message', (message) => {
+        socket.on('chat:message', ({roomId, message}) => {
+            
             io.emit('chat:message', message);
         });
 
         socket.on('disconnect', () => {
-            console.log('Usuario desconectado:', socket.id);
+            //console.log('Usuario desconectado:', socket.id);
         });
     });
 
-    httpServer.listen(34321, () => {
-        console.log('Chat WebSocket server en puerto 3001 :D');
+    httpServer.listen(PORT, () => {
+        console.log('Chat WebSocket server en puerto '+PORT+' :D');
     });
 
     globalThis.socketServer = io;

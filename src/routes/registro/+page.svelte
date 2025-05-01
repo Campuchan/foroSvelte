@@ -15,7 +15,6 @@
     let errorContra = $state("");
     let errorEmail = $state("");
     
-
     onMount(() => {
         if ($user) {
             goto("/");

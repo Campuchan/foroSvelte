@@ -25,10 +25,13 @@ export const POST = async ({ request }) => {
   const buffer = Buffer.from(arrayBuffer);
 
   let sharpBuffer = await sharp(buffer)
-    .jpeg({ quality: 80 })
+    //.jxl({ quality: 100, effort: 2 }) // queria probar jxl pero necesita librerias raras https://www.libvips.org/install.html 
+    .jpeg({ quality: 100 })
     .toBuffer();
   
   if(tipo === 'perfil') {
+    // solo las imagenes de perfil se recortan
+    // todas las imagenes son de perfil por ahora pero por si acaso
     // 200x200px
     sharpBuffer = await sharp(sharpBuffer)
       // cover recorta por los lados

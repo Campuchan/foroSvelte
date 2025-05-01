@@ -43,7 +43,7 @@ export const POST: RequestHandler = async ({ request, cookies, fetch}) => {
         password: hashedPassword
     });
     
-    if (imagen instanceof Blob) {
+    if (imagen instanceof File) {
         const imgForm = new FormData();
         imgForm.append("nombreArchivo", username); // se guarda con el nombre de usuario
         imgForm.append("image", imagen);
@@ -53,9 +53,13 @@ export const POST: RequestHandler = async ({ request, cookies, fetch}) => {
           body: imgForm,
           
         });
-    
+        console.log("Imagen subida: " + imagen)
+        console.log("Imagen subida: " + imagen.name)
+        console.log("Imagen subida: " + imagen.size)
+        console.log(typeof imagen)
+        console.log(imageResponse);
         if (!imageResponse.ok) {
-          throw error(500, 'Error al subir imagen');
+          throw error(500, 'Error al subir imagen1');
         }
     
         const imageData = await imageResponse.json();
