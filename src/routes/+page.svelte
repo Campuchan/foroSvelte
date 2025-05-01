@@ -123,14 +123,10 @@
     {/if}
   </div>
   <div class="posts">
-    {#each posts as post}
-      <div
-        class="post"
-        role="button"
-        tabindex="0"
-        on:click={() => goto(`/post/${postAuthors.get(post.userId)}/${post.title}`)}
-        on:keydown={(e) => e.key === 'Enter' && goto(`/post/${postAuthors.get(post.userId)}/${post.title}`)}
-      >
+    {#each posts as post} <!-- accesibilidad -->
+      <div class="post" role="button" tabindex="0" 
+        onclick={() => goto(`/post/${postAuthors.get(post.userId)}/${post.title}`)}
+        onkeydown={(e) => e.key === 'Enter' && goto(`/post/${postAuthors.get(post.userId)}/${post.title}`)}>
         <h2>{post.title}</h2>
         <h3>
           publicado por <a href={`/user/${postAuthors.get(post.userId)}`}>{postAuthors.get(post.userId)}</a>
