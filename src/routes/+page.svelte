@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { user } from '$lib/auth';
   import CrearPost from '$lib/components/FormPost.svelte';
-    import { goto } from "$app/navigation";
+  import { goto } from "$app/navigation";
 
   let showPopup = $state(false);
   let posts: { title: string; userId: string; content: string; createdAt: Date; }[] = $state([]);
@@ -36,8 +36,6 @@
       })
       .catch(error => console.error('Error fetching posts:', error));
     }
-    
-    
   function openPopup() {
     showPopup = true;
   }
@@ -126,11 +124,17 @@
   </div>
   <div class="posts">
     {#each posts as post}
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <!-- svelte-ignore a11y_click_events_have_key_events -->
-      <div class="post" onclick={() => goto(`/post/${postAuthors.get(post.userId)}/${post.title}`)}>
+      <div
+        class="post"
+        role="button"
+        tabindex="0"
+        on:click={() => goto(`/post/${postAuthors.get(post.userId)}/${post.title}`)}
+        on:keydown={(e) => e.key === 'Enter' && goto(`/post/${postAuthors.get(post.userId)}/${post.title}`)}
+      >
         <h2>{post.title}</h2>
-        <h3>publicado por <a href="/user/{postAuthors.get(post.userId)}">{postAuthors.get(post.userId)}</a></h3>
+        <h3>
+          publicado por <a href={`/user/${postAuthors.get(post.userId)}`}>{postAuthors.get(post.userId)}</a>
+        </h3>
       </div>
     {/each}
     {#if hayMas}
