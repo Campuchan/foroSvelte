@@ -11,8 +11,10 @@
   let limit = 10;
 
   onMount(() => {
+    console.log('dentro')
     fetchPosts(0);
   });
+  console.log('fuera')
 
   async function fetchPosts(skip: number) {
     await fetch(`/api/posts?skip=${skip}&limit=${limit}`)
@@ -26,7 +28,7 @@
               .then(userData => {
                 postAuthors.set(post.userId.toString(), userData.username); // .set no actualiza el dom
                 postAuthors = new Map(postAuthors); // cuando se reasigna el mapa se actualiza en el dom
-                console.log(postAuthors.get(post.userId.toString()));
+                //console.log(postAuthors.get(post.userId.toString()));
               }) 
               .catch(error => console.error('Error fetching user:', error));
           }
