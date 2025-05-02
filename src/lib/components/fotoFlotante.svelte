@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
+    import loadingIcon from './loading.gif'; // Asegúrate de que la ruta es correcta
   
     let componenteVisible = false;
     let x = 0;
@@ -7,6 +8,7 @@
     let username = '';
     let name = '';
     let previewImage = '';
+    let loading = true;
   
     // pone el componente siempre un poco abajo a la derecha del mouse
     function calcularPosicion(event: MouseEvent) {
@@ -22,13 +24,14 @@
         const href = target.getAttribute('href');
         if (href && (href.startsWith('/user/') || href.startsWith('/chat/'))) {
           //console.log('href: ', href.split('/')[2]);
-            if (href.startsWith('/chat/') && (!href.split('/')[2] || href.split('/')[2].trim() === '')) {
-              componenteVisible = false;
-              return;
-            }
-            // link de ejemplo : "/user/{username}"
+          if (href.startsWith('/chat/') && (!href.split('/')[2] || href.split('/')[2].trim() === '')) {
+            componenteVisible = false;
+            return;
+          }
+          // link de ejemplo : "/user/{username}"
           
           username = href.split('/')[2]; // "(0)/user(1)/{username}(2)"
+          loading = true;
           fetch(`/api/user/username/${username}`, { method: 'GET' })
             .then(async (response) => {
               if (response.ok) {
@@ -47,6 +50,7 @@
               console.error('Error fetching user data:', error);
             });
           previewImage = `/images/${username}.png`;
+          loading = false;
           componenteVisible = true;
           calcularPosicion(event);
         }
@@ -77,12 +81,16 @@
   <div style="top: {y}px;
         left: {x}px;">  <!-- este style tiene que estar aqui para que coja x e y-->
         <h1>{name}</h1>
-        <img
-        src={previewImage}
-        alt="foto de perfil flotante"
-        aria-hidden="true"
-       
-      />
+        {#if loading}
+          {loadingIcon}
+        {/if}
+        {#if !loading}
+          <img
+          src={previewImage}
+          alt="foto de perfil flotante"
+          aria-hidden="true"
+          />
+        {/if}
   </div>
     
   {/if}

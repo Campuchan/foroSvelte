@@ -84,7 +84,7 @@
             }
             loading = false;
         } catch (err) {
-            error = "Error de conexión con el servidor.";
+            error = "Error de conexión con el servidor. " + err;
             message = "";
             loading = false;
         }

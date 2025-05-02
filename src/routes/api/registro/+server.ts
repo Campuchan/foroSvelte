@@ -20,7 +20,7 @@ export const POST: RequestHandler = async ({ request, cookies, fetch}) => {
         console.log("Imagen no subida o no valida, usando imagen de gato por defecto");
         const imagenCataas = await fetch('https://cataas.com/cat?type=square&size=200&width=200&height=200');
         const blob = await imagenCataas.blob();
-        imagen = new File([blob], 'imagen.png', { type: blob.type });
+        imagen = new File([blob], 'imagen.jpg', { type: blob.type });
     }
 
     const db = client.db();
