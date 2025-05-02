@@ -1,30 +1,36 @@
-import { start_mongo, client } from './src/db/mongo';
+import { MongoClient } from 'mongodb';
+
+export const client = new MongoClient("mongodb://localhost:27017")
 
 async function initDB() {
-  await start_mongo();
-  const db = client.db();
 
-  // List of collections you want to ensure exist
-  const collectionsToCreate = ['users', 'posts', 'comentarios', 'sessions', 'chat'];
+  client.connect()
+  const db = client.db("foro");
+
+  const colecciones = ['users', 'posts', 'comentarios', 'sessions', 'chat'];
 
   // Get the list of existing collection names
-  const existingCollections = await db.listCollections().toArray();
-  const existingNames = existingCollections.map(c => c.name);
+  const coleccionesEnServidor = await db.listCollections().toArray();
+  const coleccionesEnServidorNombres = coleccionesEnServidor.map(c => c.name);
 
-  for (const coll of collectionsToCreate) {
-    if (!existingNames.includes(coll)) {
-      console.log(`Creating collection '${coll}'...`);
-      await db.createCollection(coll);
+  for (const coleccion of colecciones) {
+    if (!coleccionesEnServidorNombres.includes(coleccion)) {
+      console.log(`Creating colección '${coleccion}'...`);
+      await db.createCollection(coleccion);
     } else {
-      console.log(`Collection '${coll}' already exists.`);
+      console.log(`Colección '${coleccion}' ya existe existe.`);
     }
   }
+  await db.collection('users').createIndex({ username: 1 }, { unique: true });
 
   await client.close();
-  console.log('Database initialization complete.');
+  console.log('Inicialización de la base de datos completada.');
 }
 
-initDB().then(() => process.exit(0)).catch((err) => {
-  console.error('Error initializing database:', err);
-  process.exit(1);
-});
+initDB()
+    .then(() => 
+        process.exit(0))
+    .catch((err) => {
+        console.error('ErrorInicial:', err);
+        process.exit(1);
+    });
