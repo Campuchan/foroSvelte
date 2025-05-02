@@ -53,11 +53,6 @@ export const POST: RequestHandler = async ({ request, cookies, fetch}) => {
           body: imgForm,
           
         });
-        console.log("Imagen subida: " + imagen)
-        console.log("Imagen subida: " + imagen.name)
-        console.log("Imagen subida: " + imagen.size)
-        console.log(typeof imagen)
-        console.log(imageResponse);
         if (!imageResponse.ok) {
           throw error(500, 'Error al subir imagen1');
         }
@@ -68,8 +63,6 @@ export const POST: RequestHandler = async ({ request, cookies, fetch}) => {
         }
       }
   
-
-
     const sessionToken = await createSession(result.insertedId);
     
     cookies.set('session_token', sessionToken, {
