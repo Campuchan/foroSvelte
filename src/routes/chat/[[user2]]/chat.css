@@ -43,7 +43,11 @@
   justify-content: end;
 }
 .chat-general {
+  width: 100%;
   margin-bottom: 14px;
+}
+.chat-general a {
+  display: block;
 }
 .chat-container {
   width: 100%;

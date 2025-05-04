@@ -56,6 +56,10 @@
     padding: 8px;
     margin: 8px 0;
   }
+  .comentario p {
+    margin: 0;
+    white-space: pre-wrap;
+  }
   .comentario a {
     text-decoration: none;
     color: #007BFF;

@@ -169,7 +169,7 @@
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <a class="lista-user-item" href="/chat/{user.username}" style="cursor: pointer;" data-sveltekit-reload>
-            {user.name}</a>
+            {user.username}</a>
         {/each}
       </div>
       {/if}

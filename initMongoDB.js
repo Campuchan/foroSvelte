@@ -3,6 +3,7 @@ import { MongoClient } from 'mongodb';
 export const client = new MongoClient("mongodb://localhost:27017")
 
 async function initDB() {
+  console.log("inicializando base de datos...");
 
   client.connect()
   const db = client.db("foro");
