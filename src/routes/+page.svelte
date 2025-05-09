@@ -117,6 +117,44 @@
     border-radius: 5px;
     cursor: pointer;
   }
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+      width: 100%;
+      min-width: 0;
+    }
+    .aparte {
+      width: 100%;
+      height: auto;
+      min-width: 0;
+      border-right: none;
+      border-bottom: 1px solid #ccc;
+      padding: 8px;
+    }
+    .posts {
+      width: 100%;
+      padding: 8px;
+    }
+    .post {
+      flex-direction: column;
+      align-items: flex-start;
+      height: auto;
+      padding: 10px;
+    }
+    .post h2 {
+      margin-left: 0;
+      font-size: 18px;
+    }
+    .post h3 {
+      margin-right: 0;
+      font-size: 14px;
+    }
+    .botonNuevoPost {
+      width: auto;
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+  }
 </style>
 <div class="container">
   <div class="aparte">

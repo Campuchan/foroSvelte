@@ -1,12 +1,21 @@
 export function formatoDate(fecha: Date){
-    return fecha.toLocaleString('es-ES', {
+    /*return fecha.toLocaleString('es-ES', {
       hour: '2-digit',
       minute: '2-digit',
       day: 'numeric',
       month: 'long',
       year: 'numeric',
       hour12: false,
-    });
+    });*/
+    return (fecha.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    })) + ' del ' + (fecha.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }));
   }
 
  /**

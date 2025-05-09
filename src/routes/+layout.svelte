@@ -69,6 +69,7 @@
         flex-direction: column;
         justify-content: center; 
         align-items: center;
+        overflow-x: hidden;
     }
 
     footer {
@@ -78,6 +79,42 @@
         background-color: #333;
         color: white;
         width: 100%;
+    }
+
+    @media (max-width: 768px) {
+        header {
+            flex-direction: column;
+            height: auto;
+            padding: 10px;
+        }
+
+        header h1 a {
+            font-size: 32px;
+        }
+
+        nav {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        nav a {
+            margin: 5px;
+            font-size: 14px;
+        }
+
+        main {
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        footer {
+            font-size: 12px;
+            padding: 5px 0;
+        }
     }
 </style>
 

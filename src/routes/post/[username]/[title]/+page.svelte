@@ -91,12 +91,23 @@
     white-space: pre-wrap;
   }
 
+  .post {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ccc;
+    padding: 16px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    margin-bottom: 16px;
+  }
+
   h2 a {
     text-decoration: none;
     color: #007BFF;
   }
   #comentarios {
     margin-top: 16px;
+    flex-grow: 1;
     padding: 16px;
     border: 1px solid #ccc;
     border-top: 1px solid #007BFF;
@@ -132,12 +143,43 @@
   button:hover {
     background-color: #0056b3;
   }
+
+  @media (max-width: 768px) {
+    .container {
+      width: 100%;
+      min-width: 0;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    h1 {
+      font-size: 1.5rem;
+    }
+    h2 {
+      font-size: 0.9rem; 
+    }
+    p {
+      font-size: 0.9rem; 
+    }
+    #comentarios {
+      padding: 10px;
+      margin-top: 10px;
+    }
+    textarea {
+      height: 80px;
+    }
+    button {
+      padding: 6px 12px;
+      font-size: 0.9rem;
+    }
+  }
 </style>
 
 <div class="container">
-  <h1>{post.title}</h1>
-  <h2>por <a href="/user/{post.username}">{post.username}</a> a las {formatoDate(post.createdAt)}</h2>
-  <p>{post.content}</p>
+  <div class="post">
+    <h1>{post.title}</h1>
+    <h2>por <a href="/user/{post.username}">{post.username}</a> a las {formatoDate(post.createdAt)}</h2>
+    <p>{post.content}</p>
+  </div>
   
   <div id="comentarios">
     <h2>Comentarios</h2>
